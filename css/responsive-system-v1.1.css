@@ -81,6 +81,14 @@ body {
   min-inline-size: 0;
 }
 
+/* تثبيت كل مجموعة في عمودها صراحةً. ضروري لا تجميلي: في P7 يُخفى
+   شريط التلميح (‎.p7-clean-stage .teacher-hint-zone { display:none }‎)
+   فيخرج من الشبكة، ولولا هذا التثبيت لانزلقت مجموعة الأزرار إلى
+   العمود الأوسط بالوضع التلقائي وظهرت في منتصف الشريط. */
+.hud-phase         { grid-column: 1; }
+.teacher-hint-zone { grid-column: 2; }
+.hud-controls      { grid-column: 3; }
+
 .teacher-hint-zone {
   position: static;
   transform: none;
@@ -380,6 +388,9 @@ body {
   .teacher-hud {
     grid-template-columns: minmax(0, 1fr) auto;
   }
+
+  /* عمودان فقط هنا، فتُعاد الأزرار إلى العمود الثاني. */
+  .hud-controls { grid-column: 2; }
 
   .teacher-hint-zone {
     display: none;
