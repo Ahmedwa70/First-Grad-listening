@@ -165,6 +165,10 @@ const Dash = {
     set('stat-video', `${totals.vHave} / ${totals.vTotal}`);
     set('stat-video-meta', this._plural(totals.vTotal - totals.vHave, ['مقطع ناقص', 'مقطعان ناقصان', 'مقاطع ناقصة', 'مقطعاً ناقصاً']));
 
+    if (typeof DashUpload !== 'undefined' && !this._uploadReady) {
+      this._uploadReady = true;
+      DashUpload.init();
+    }
     document.getElementById('dash-scanning').hidden = true;
     document.getElementById('dash-summary').hidden = false;
     document.getElementById('dash-filters').hidden = false;
@@ -197,19 +201,81 @@ const Dash = {
       </div>`;
   },
 
+  // كل ملف ناقص خانة رفع قائمة بذاتها: اسمها هو الوجهة، فلا يكتب
+  // المعلم اسماً ولا يفتح مجلداً. السلوك يُركَّب في js/dash-upload.js،
+  // وإن غاب ذلك الملف تبقى الخانات قائمة تعرض الأسماء والمجلدات.
   _missingList(rec) {
-    const group = (arr, icon, label) => {
+    const group = (arr, icon, label, kind) => {
       const miss = arr.filter(x => !x.ok).map(x => x.src);
       if (!miss.length) return '';
       const dir = miss[0].slice(0, miss[0].lastIndexOf('/') + 1);
       return `
         <div class="dl-miss-group">
           <div class="dl-miss-head"><span>${icon} ${label} — ${miss.length}</span><code>${this._esc(dir)}</code></div>
-          <ul class="dl-miss-list">${miss.map(m =>
-            `<li>${this._esc(m.slice(m.lastIndexOf('/') + 1))}</li>`).join('')}</ul>
+          <ul class="dl-miss-list">${miss.map(m => `
+            <li class="dl-slot" data-path="${this._esc(m)}" data-kind="${kind}" data-state="idle" tabindex="0" role="button">
+              <span class="slot-name">${this._esc(m.slice(m.lastIndexOf('/') + 1))}</span>
+              <span class="slot-cue">اسحب الملف هنا أو انقر للاختيار</span>
+              <span class="slot-state"></span>
+            </li>`).join('')}</ul>
         </div>`;
     };
-    return group(rec.audio, '🔊', 'الصوت') + group(rec.video, '🎬', 'الفيديو');
+    return group(rec.audio, '🔊', 'الصوت', 'audio')
+         + group(rec.video, '🎬', 'الفيديو', 'video');
+  },
+
+  // يُستدعى بعد حفظ ملف في مكانه: تُحدَّث البيانات والبطاقة والخلاصة
+  // في مكانها بلا إعادة فحص — فالحقيقة معروفة يقيناً لحظتَها.
+  markResolved(path) {
+    let rec = null;
+    for (const l of this.lessons) {
+      if (!l.built) continue;
+      const hit = [...l.audio, ...l.video].find(x => x.src === path);
+      if (hit) { hit.ok = true; rec = l; break; }
+    }
+    if (!rec) return;
+
+    const card = document.querySelector(`.dl-card[data-lesson="${String(rec.n).padStart(2, '0')}"]`);
+    if (card) {
+      const t = this._tally(rec);
+      const status = this._status(rec);
+      card.dataset.status = status;
+      const chip = card.querySelector('.dl-status');
+      if (chip) {
+        chip.textContent = status === 'complete' ? 'مكتمل'
+          : this._plural(t.total - t.have, ['ملف ناقص', 'ملفان ناقصان', 'ملفات ناقصة', 'ملفاً ناقصاً']);
+      }
+      const pairs = [t.audio, t.video].filter(x => x.total);
+      card.querySelectorAll('.dl-bar').forEach((bar, i) => {
+        const p = pairs[i];
+        if (!p) return;
+        bar.dataset.state = p.have === p.total ? 'full' : p.have === 0 ? 'none' : 'part';
+        const num = bar.querySelector('.dl-bar-num');
+        if (num) num.textContent = `${p.have}/${p.total}`;
+        const fill = bar.querySelector('.dl-bar-fill');
+        if (fill) fill.style.inlineSize = Math.round((p.have / p.total) * 100) + '%';
+      });
+    }
+    this._refreshSummary();
+    this._applyFilter();
+  },
+
+  _refreshSummary() {
+    const built = this.lessons.filter(l => l.built);
+    const t = built.reduce((a, l) => {
+      const x = this._tally(l);
+      a.aHave += x.audio.have; a.aTotal += x.audio.total;
+      a.vHave += x.video.have; a.vTotal += x.video.total;
+      if (x.total > 0 && x.have === x.total) a.done++;
+      return a;
+    }, { aHave: 0, aTotal: 0, vHave: 0, vTotal: 0, done: 0 });
+    const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    set('stat-complete', `${t.done} / ${built.length}`);
+    set('stat-complete-meta', t.done === built.length ? 'لا ينقص شيء' : `${built.length - t.done} تحتاج ملفات`);
+    set('stat-audio', `${t.aHave} / ${t.aTotal}`);
+    set('stat-audio-meta', this._plural(t.aTotal - t.aHave, ['ملف ناقص', 'ملفان ناقصان', 'ملفات ناقصة', 'ملفاً ناقصاً']));
+    set('stat-video', `${t.vHave} / ${t.vTotal}`);
+    set('stat-video-meta', this._plural(t.vTotal - t.vHave, ['مقطع ناقص', 'مقطعان ناقصان', 'مقاطع ناقصة', 'مقطعاً ناقصاً']));
   },
 
   _card(rec) {
@@ -218,7 +284,7 @@ const Dash = {
 
     if (!rec.built) {
       return `
-        <article class="dl-card" data-status="unbuilt">
+        <article class="dl-card" data-status="unbuilt" data-lesson="${id}">
           <header class="dl-head">
             <span class="dl-badge">${id}</span>
             <div class="dl-titles"><h2 class="dl-title">الدرس ${id}</h2>
@@ -244,7 +310,7 @@ const Dash = {
       </details>` : '';
 
     return `
-      <article class="dl-card" data-status="${status}">
+      <article class="dl-card" data-status="${status}" data-lesson="${id}">
         <header class="dl-head">
           <span class="dl-badge">${id}</span>
           <div class="dl-titles">

@@ -344,3 +344,196 @@
   .dl-card, .dl-bar-fill, .dash-scan-fill, .dash-icon-btn, .dl-open { transition: none; }
   .dl-card:hover { transform: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   الرفع — لافتة الربط، وخانات الإفلات، والتنبيهات.
+   الحالة تُقرأ من data-state وحدها، فالمظهر انعكاس للحقيقة لا
+   طبقة موازية لها.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── لافتة الربط ────────────────────────────────────────────── */
+.dash-connect {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: clamp(0.75rem, 1.4vw, 1rem) clamp(0.9rem, 1.8vw, 1.3rem);
+  margin-block-end: clamp(1rem, 2.2vh, 1.5rem);
+  border-radius: var(--dash-radius);
+  background:
+    linear-gradient(to left, color-mix(in srgb, var(--cn-tone) 9%, transparent), transparent 62%),
+    var(--th-bg-card);
+  border: 1px solid color-mix(in srgb, var(--cn-tone) 32%, transparent);
+  --cn-tone: var(--gold);
+}
+.dash-connect[data-state="linked"] { --cn-tone: var(--green); }
+.dash-connect[data-state="manual"] { --cn-tone: var(--teal); }
+.dash-connect:empty { display: none; }
+
+.cn-dot {
+  flex: 0 0 auto;
+  inline-size: 9px;
+  block-size: 9px;
+  border-radius: 50%;
+  background: var(--cn-tone);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--cn-tone) 18%, transparent);
+}
+.dash-connect[data-state="offer"] .cn-dot { animation: cnPulse 2.4s ease-in-out infinite; }
+@keyframes cnPulse {
+  0%, 100% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--cn-tone) 16%, transparent); }
+  50%      { box-shadow: 0 0 0 8px color-mix(in srgb, var(--cn-tone) 8%, transparent); }
+}
+
+.cn-text { flex: 1 1 auto; min-inline-size: 0; display: flex; flex-direction: column; gap: 0.12rem; }
+.cn-text strong { font-size: 0.92rem; font-weight: 800; color: var(--text-primary); }
+.cn-text span { font-size: 0.78rem; color: var(--text-dim); line-height: 1.6; }
+
+.cn-btn {
+  flex: 0 0 auto;
+  padding: 0.5rem 1.15rem;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--cn-tone);
+  border: none;
+  transition: all var(--dur-fast);
+}
+.cn-btn:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+.cn-btn:disabled { opacity: 0.6; cursor: default; }
+.cn-btn-ghost { background: transparent; color: var(--text-dim); border: 1px solid var(--th-border-default); }
+.cn-btn-ghost:hover { color: var(--text-primary); border-color: var(--cn-tone); }
+
+/* ── خانات الرفع ────────────────────────────────────────────── */
+.dl-miss-list:has(.dl-slot) { grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); gap: 0.5rem; }
+
+.dl-slot {
+  --slot-tone: var(--th-border-default);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 11px;
+  cursor: pointer;
+  overflow: hidden;
+  background: var(--th-bg-hover);
+  border: 1.5px dashed color-mix(in srgb, var(--slot-tone) 55%, transparent);
+  transition: border-color var(--dur-fast), background var(--dur-fast), transform var(--dur-fast);
+}
+.dl-slot:hover { --slot-tone: var(--gold); background: var(--th-bg-active); }
+.dl-slot:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.dl-slot.is-over { --slot-tone: var(--gold); transform: scale(1.02); background: color-mix(in srgb, var(--gold) 10%, transparent); border-style: solid; }
+
+.slot-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  direction: ltr;
+  text-align: right;
+  unicode-bidi: plaintext;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot-cue { font-size: 0.64rem; color: var(--text-dim); line-height: 1.5; }
+.dl-slot[data-state="idle"]:hover .slot-cue { color: var(--gold); }
+.dl-slot:not([data-state="idle"]) .slot-cue { display: none; }
+
+.slot-state { display: flex; flex-direction: column; gap: 0.25rem; }
+.slot-msg { font-size: 0.64rem; line-height: 1.55; color: var(--text-secondary); }
+.slot-wave { display: block; inline-size: 100%; max-inline-size: 100%; opacity: 0.9; }
+
+/* الحالات */
+.dl-slot[data-state="checking"],
+.dl-slot[data-state="saving"] { --slot-tone: var(--gold); border-style: solid; cursor: progress; }
+.dl-slot[data-state="checking"]::after,
+.dl-slot[data-state="saving"]::after {
+  content: '';
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  block-size: 2px;
+  inline-size: 40%;
+  background: linear-gradient(to left, transparent, var(--gold), transparent);
+  animation: slotSweep 1.1s linear infinite;
+}
+@keyframes slotSweep { from { transform: translateX(-120%); } to { transform: translateX(320%); } }
+
+.dl-slot[data-state="saved"] {
+  --slot-tone: var(--green);
+  border-style: solid;
+  background: color-mix(in srgb, var(--green) 8%, transparent);
+  cursor: default;
+}
+.dl-slot[data-state="saved"] .slot-name::before { content: '✓ '; color: var(--green); font-weight: 800; }
+.dl-slot[data-state="saved"] .slot-msg { color: var(--green); }
+
+.dl-slot[data-state="downloaded"] {
+  --slot-tone: var(--teal);
+  border-style: solid;
+  background: color-mix(in srgb, var(--teal) 8%, transparent);
+}
+.dl-slot[data-state="downloaded"] .slot-name::before { content: '⤓ '; color: var(--teal); font-weight: 800; }
+.dl-slot[data-state="downloaded"] .slot-msg { color: var(--teal); }
+
+.dl-slot[data-state="error"] {
+  --slot-tone: var(--rust);
+  border-style: solid;
+  background: color-mix(in srgb, var(--rust) 8%, transparent);
+  animation: slotShake 0.4s ease-in-out;
+}
+.dl-slot[data-state="error"] .slot-name::before { content: '✕ '; color: var(--rust); font-weight: 800; }
+.dl-slot[data-state="error"] .slot-msg { color: var(--rust); }
+@keyframes slotShake {
+  0%, 100% { transform: none; }
+  25% { transform: translateX(-4px); }
+  60% { transform: translateX(3px); }
+}
+
+/* ── التنبيهات ──────────────────────────────────────────────── */
+.dash-toasts {
+  position: fixed;
+  inset-block-end: 1.4rem;
+  inset-inline: 0;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  pointer-events: none;
+  padding-inline: 1rem;
+}
+
+.dash-toast {
+  --tt: var(--gold);
+  max-inline-size: min(34rem, 100%);
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--th-bg-card);
+  border: 1px solid color-mix(in srgb, var(--tt) 45%, transparent);
+  border-inline-start: 3px solid var(--tt);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  animation: toastIn 0.26s var(--ease-out);
+}
+.dash-toast[data-tone="ok"]    { --tt: var(--green); }
+.dash-toast[data-tone="error"] { --tt: var(--rust); }
+.dash-toast[data-tone="note"]  { --tt: var(--teal); }
+.dash-toast.is-out { animation: toastOut 0.3s ease-in forwards; }
+
+@keyframes toastIn  { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes toastOut { to { opacity: 0; transform: translateY(8px); } }
+
+@media (max-width: 640px) {
+  .dash-connect { flex-wrap: wrap; }
+  .cn-btn { inline-size: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cn-dot, .dl-slot, .dash-toast { animation: none !important; }
+  .dl-slot[data-state="checking"]::after, .dl-slot[data-state="saving"]::after { animation: none; inline-size: 100%; }
+}
