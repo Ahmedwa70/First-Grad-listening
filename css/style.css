@@ -5396,6 +5396,15 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 .p7-main > .p6-counter { order: 2; margin: clamp(4px, 0.8vh, 12px) auto; }
 .p7-main > .p7-controls { order: 3; }
 .p7-assessment-card {
+  /* ══════════════════════════════════════════════════════════
+     حجم حرف P7 — مصدر واحد لا ثاني له.
+     يقرؤه .p7-stimulus-glyph و .p7-sound-answer-glyph معاً، فلا
+     يمكن أن يتباعد حجم حرف السؤال عن حرف الإجابة. واستعلامات
+     الشاشة تُغيّر هذا الرمز وحده لا قواعد الحروف.
+     مقاس مناسب لشاشة عرض في قاعة: نحو 17% من ارتفاع الشاشة.
+     لا تكتب font-size على أي من صنفَي الحرف — غيّر الرمز هنا.
+     ══════════════════════════════════════════════════════════ */
+  --p7-glyph-size: clamp(7rem, 17vh, 10.5rem);
   width: 100%;
   max-width: 700px;
   min-width: 0;
@@ -5421,7 +5430,7 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   transition: none;
 }
 .p7-card-stimulus {
-  min-height: clamp(100px, 16vh, 164px);
+  min-height: clamp(130px, 19vh, 200px);
   width: 100%;
   flex: 1 1 auto;
   position: relative;
@@ -5444,7 +5453,7 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
    ══════════════════════════════════════════════════════════════ */
 .p7-assessment-card.revealed .p7-card-stimulus { transform: none; }
 .p7-stimulus-glyph {
-  font-size: clamp(5.5rem, 12vh, 7.5rem);
+  font-size: var(--p7-glyph-size);
   font-weight: 900;
   line-height: 1;
   text-align: center;
@@ -5471,7 +5480,7 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   position: absolute;
   opacity: 0;
   transform: scale(0.96);
-  font-size: clamp(5.5rem, 12vh, 7.5rem);
+  font-size: var(--p7-glyph-size);
   font-weight: 900;
   line-height: 1;
   pointer-events: none;
@@ -6178,8 +6187,8 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   .p7-header { gap: 0.15rem; }
   .p7-floating-prompt { padding: clamp(0.15rem, 0.3vh, 0.3rem) 0.8rem; }
   .p7-assessment-card { min-height: clamp(150px, 24vh, 240px); max-height: 36vh; padding: clamp(0.4rem, 0.8vh, 0.7rem) 1rem; }
-  .p7-card-stimulus { min-height: clamp(80px, 13vh, 130px); }
-  .p7-stimulus-glyph { font-size: clamp(4.5rem, 10vh, 6.5rem); }
+  .p7-card-stimulus { min-height: clamp(105px, 16vh, 165px); }
+  .p7-assessment-card { --p7-glyph-size: clamp(6rem, 14.5vh, 9rem); }
   .p7-listen-ear { width: clamp(4.5rem, 10vw, 6rem); height: clamp(4.5rem, 10vw, 6rem); }
   .p7-listen-ear-icon { font-size: clamp(2.8rem, 6vw, 3.8rem); }
   .p7-main > .p6-counter { margin: clamp(2px, 0.4vh, 8px) auto; }
@@ -6211,9 +6220,8 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 
   /* P7 */
   .p7-assessment-card { min-height: clamp(120px, 20vh, 200px); max-height: 32vh; }
-  .p7-card-stimulus { min-height: clamp(70px, 11vh, 110px); }
-  .p7-stimulus-glyph { font-size: clamp(3.8rem, 8vh, 5.5rem); }
-  .p7-sound-answer-glyph { font-size: clamp(3.8rem, 8vh, 5.5rem); }
+  .p7-card-stimulus { min-height: clamp(90px, 14vh, 135px); }
+  .p7-assessment-card { --p7-glyph-size: clamp(5rem, 12vh, 7.5rem); }
   .p7-listen-ear { width: clamp(4rem, 9vw, 5.5rem); height: clamp(4rem, 9vw, 5.5rem); }
   .p7-listen-ear-icon { font-size: clamp(2.4rem, 5vw, 3.2rem); }
   .p7-primary-btn { height: 38px; min-width: 200px; }
