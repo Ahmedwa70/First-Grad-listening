@@ -7953,12 +7953,13 @@ html.secondary-language-hidden .secondary-language {
   position: absolute;
   top: calc(100% + 0.35rem);
   left: 0;
-  min-width: 230px;
+  min-width: 250px;
   width: max-content;
-  max-width: min(320px, calc(100vw - 2rem));
-  max-height: calc(100vh - 5rem);
+  max-width: min(330px, calc(100vw - 2rem));
+  /* سقف صارم: اللوحة مرجع سريع لا تقرير — لا تبتلع الشاشة أبداً. */
+  max-height: min(60vh, 22rem);
   overflow-y: auto;
-  padding: 0.7rem 0.9rem;
+  padding: 0.55rem 0.7rem;
   background: var(--bg-card);
   border: 1px solid rgba(224, 140, 52, 0.35);
   border-radius: 10px;
@@ -7969,52 +7970,68 @@ html.secondary-language-hidden .secondary-language {
 }
 
 .media-panel-title {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 800;
   color: var(--media-warn);
-  margin-bottom: 0.55rem;
+  margin-bottom: 0.4rem;
 }
 
-.media-group + .media-group { margin-top: 0.75rem; }
+.media-group + .media-group { margin-top: 0.5rem; }
 
+/* العنوان والمجلد على سطر واحد بدل سطرين. */
 .media-group-head {
-  font-size: 0.78rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.media-group-label {
+  font-size: 0.74rem;
   font-weight: 700;
   color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 .media-group-dir {
-  font-size: 0.66rem;
+  font-size: 0.62rem;
   color: var(--text-dim);
-  margin: 0.15rem 0 0.3rem;
   direction: ltr;
-  text-align: right;
   unicode-bidi: plaintext;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+/* عمودان: يقصّان ارتفاع القائمة إلى النصف بلا تصغير الخط. */
 .media-list {
   margin: 0;
   padding: 0;
   list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.12rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.05rem 0.55rem;
 }
 
 .media-list li {
   font-size: 0.72rem;
+  line-height: 1.45;
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
   direction: ltr;
   text-align: right;
   unicode-bidi: plaintext;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .media-panel-note {
-  margin-top: 0.7rem;
-  padding-top: 0.5rem;
+  margin-top: 0.45rem;
+  padding-top: 0.35rem;
   border-top: 1px solid var(--th-border-subtle);
-  font-size: 0.68rem;
-  line-height: 1.6;
+  font-size: 0.66rem;
+  line-height: 1.5;
   color: var(--text-dim);
 }

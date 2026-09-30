@@ -183,14 +183,16 @@ const MediaCheck = {
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   },
 
-  _group(icon, label, forms, paths) {
+  _group(icon, label, paths) {
     if (!paths.length) return '';
     const dir = paths[0].slice(0, paths[0].lastIndexOf('/') + 1);
     const items = paths.map(p => `<li>${this._esc(p.slice(p.lastIndexOf('/') + 1))}</li>`).join('');
     return `
       <div class="media-group">
-        <div class="media-group-head">${icon} ${label} — ${paths.length}</div>
-        <div class="media-group-dir">${this._esc(dir)}</div>
+        <div class="media-group-head">
+          <span class="media-group-label">${icon} ${label} — ${paths.length}</span>
+          <span class="media-group-dir">${this._esc(dir)}</span>
+        </div>
         <ul class="media-list">${items}</ul>
       </div>`;
   },
@@ -212,8 +214,8 @@ const MediaCheck = {
     dot.setAttribute('aria-label', summary);
     panel.innerHTML =
       `<div class="media-panel-title">ينقص من هذا الدرس</div>` +
-      this._group('🔊', 'الصوت', this._AUDIO_FORMS, missAudio) +
-      this._group('🎬', 'الفيديو', this._VIDEO_FORMS, missVideo) +
+      this._group('🔊', 'الصوت', missAudio) +
+      this._group('🎬', 'الفيديو', missVideo) +
       `<div class="media-panel-note">ضع الملف باسمه في مجلده وأعد فتح الدرس.</div>`;
     host.hidden = false;
   },
