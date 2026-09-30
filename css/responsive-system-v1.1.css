@@ -323,12 +323,11 @@ body {
   max-block-size: none;
 }
 
+/* البطاقة لا تكبر بالكشف: كِبَرها كان يعيد توزيع المحتوى الموسّط
+   فيرتفع الحرف. الارتفاع الأكبر يسري في الحالتين. */
+.p7-assessment-card,
 .p7-assessment-card.revealed {
   min-block-size: clamp(15rem, 34vh, 22rem);
-}
-
-.p7-card-answer {
-  max-block-size: none;
 }
 
 .p7-controls {
@@ -379,6 +378,7 @@ body {
     min-block-size: clamp(11.25rem, 24vh, 12.5rem);
   }
 
+  .p7-assessment-card,
   .p7-assessment-card.revealed {
     min-block-size: clamp(13.5rem, 30vh, 17.5rem);
   }

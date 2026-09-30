@@ -24,8 +24,11 @@ function advanceP7() {
     return;
   }
   if (!STATE.p7AnswerVisible) {
+    const glyphBefore = p7GlyphCentre();
     STATE.p7AnswerVisible = true;
     renderP7();
+    // بعد انتهاء الانتقالات، لا قبلها: إزاحة مُتحرِّكة تُقرأ صفراً لحظةَ الرسم.
+    setTimeout(() => p7AssertGlyphStable(glyphBefore), 450);
     return;
   }
 
@@ -65,6 +68,35 @@ function p7PlaySound(letterId, el) {
 // السبب: أزرار الرصد تُبنى مرة واحدة عند دخول P7 ولا يُعاد بناؤها مع
 // كل سؤال، فمفتاحٌ محفور داخل onclick يتجمّد على السؤال الأول وتُدهس
 // الرصدات الاثنتا عشرة فوق بعضها في خانة واحدة.
+// ══════════════════════════════════════════════════════════════
+// حارس ثبات الحرف عند كشف الإجابة.
+// الثابت: كشف الإجابة لا يزحزح حرف السؤال ولو بكسل واحد.
+// كُسر هذا الثابت ثلاث مرات من ثلاث جهات (إزاحة صريحة، نموّ خانة
+// الإجابة، كِبَر البطاقة)، فكلّما أُصلحت جهة أعادته أخرى. الحارس
+// لا يمنع الكسر — بل يجعله مسموعاً فوراً في طرفية المتصفح بدل أن
+// يمرّ صامتاً إلى الفصل. التفصيل في كتلة «ثابت بنيوي» بـ style.css.
+// ══════════════════════════════════════════════════════════════
+function p7GlyphCentre() {
+  const g = document.querySelector('.p7-stimulus-glyph, .p7-sound-answer-glyph');
+  if (!g) return null;
+  const r = g.getBoundingClientRect();
+  return r.height ? r.top + r.height / 2 : null;
+}
+
+function p7AssertGlyphStable(before) {
+  if (before == null) return;
+  const after = p7GlyphCentre();
+  if (after == null) return;
+  const moved = Math.abs(after - before);
+  if (moved > 1) {
+    console.warn(
+      `⚠️ ثابت P7 مكسور: الحرف تحرّك ${moved.toFixed(1)}px عند كشف الإجابة. ` +
+      'السبب قاعدة تحت ‎.p7-assessment-card.revealed‎ تُغيّر ارتفاعاً أو حشواً أو transform. ' +
+      'راجع كتلة «ثابت بنيوي» في css/style.css.'
+    );
+  }
+}
+
 function p7Score(val) {
   const key = `${STATE.p7RoundIndex}-${STATE.p7ItemIndex}`;
   STATE.p7Scores[key] = val;

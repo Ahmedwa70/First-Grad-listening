@@ -5430,7 +5430,19 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   justify-content: center;
   transition: transform 260ms ease-out;
 }
-.p7-assessment-card.revealed .p7-card-stimulus { transform: translateY(-10px); }
+/* ══════════════════════════════════════════════════════════════
+   ثابت بنيوي: الحرف لا يتحرّك عند كشف الإجابة.
+   كُسر هذا الثابت ثلاث مرات من ثلاث جهات مستقلة:
+     ١ — إزاحة صريحة translateY(-10px) على المثير عند .revealed
+     ٢ — خانة الإجابة تنمو من ارتفاع صفر إلى ارتفاعها
+     ٣ — البطاقة نفسها تكبر min-block-size عند .revealed
+   القاعدة الحاكمة: لا يجوز لأي قاعدة تحت .revealed أن تُغيّر شيئاً
+   يؤثر في التخطيط — لا ارتفاعاً ولا حشواً ولا transform. المسموح
+   فقط ما لا يزحزح صندوقاً: opacity و visibility واللون.
+   الحارس أدناه يُبطل أي إزاحة تُضاف لاحقاً بالخطأ، وp7AssertGlyphStable
+   في assessment-quiz.js ينبّه في الطرفية إن تحرّك الحرف رغم ذلك.
+   ══════════════════════════════════════════════════════════════ */
+.p7-assessment-card.revealed .p7-card-stimulus { transform: none; }
 .p7-stimulus-glyph {
   font-size: clamp(5.5rem, 12vh, 7.5rem);
   font-weight: 900;
@@ -5509,10 +5521,12 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--audio-color) 0%, transparent); transform: scale(1); }
 }
 .p7-card-answer {
+  /* لا قيد ارتفاع البتة — وهذا هو الإصلاح لا التساهل:
+     محتوى الإجابة مبنيّ في الصفحة قبل الكشف وبعده، فارتفاعه الطبيعي
+     واحد في الحالتين بلا أي قاعدة. وما لا قاعدة له لا يمكن أن تختلّ
+     قاعدته. أي min/max-height هنا أو تحت .revealed يُعيد العيب. */
   width: 100%;
-  min-height: 0;
-  max-height: 0;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5522,9 +5536,7 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   transition: opacity 280ms ease-out, transform 280ms ease-out, max-height 300ms ease-out, visibility 0s linear 280ms;
 }
 .p7-assessment-card.revealed .p7-card-answer {
-  min-height: clamp(50px, 8vh, 76px);
-  max-height: 120px;
-  overflow: visible;
+  /* الكشف يغيّر الظهور فقط — لا شيء هنا يمسّ التخطيط. */
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
@@ -6170,7 +6182,6 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   .p7-stimulus-glyph { font-size: clamp(4.5rem, 10vh, 6.5rem); }
   .p7-listen-ear { width: clamp(4.5rem, 10vw, 6rem); height: clamp(4.5rem, 10vw, 6rem); }
   .p7-listen-ear-icon { font-size: clamp(2.8rem, 6vw, 3.8rem); }
-  .p7-assessment-card.revealed .p7-card-answer { min-height: clamp(40px, 6vh, 60px); }
   .p7-main > .p6-counter { margin: clamp(2px, 0.4vh, 8px) auto; }
   .p7-controls { min-height: 44px; }
   .p7-primary-btn { height: 42px; }
