@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- القيم أدناه تُستبدل تلقائياً من بيانات الدرس js/lesson-XX.js (LESSON.meta) عبر loader.js ?lesson=XX -->
+  <meta name="description" id="doc-description" content="درس تفاعلي — نظام التدريس التفاعلي" />
+  <title id="doc-title">المحاضرة التفاعلية</title>
+
+  <!-- قالب محاضرة عام (Phase 2)
+       نظام التدريس التفاعلي — Offline كامل
+       البيانات: js/lesson-XX.js | المحرّك: js/app.js | الأنشطة: js/activities/
+       الخطوط: assets/fonts/ | الصوت: assets/audio/ | لا إنترنت مطلوب -->
+
+  <script>try{var t=localStorage.getItem('lesson-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- طبقة الاستجابة المركزية لـ v1.1: تحميلها أخيراً لتوحيد ميزانية العرض دون تغيير المنطق. -->
+  <link rel="stylesheet" href="css/responsive-system-v1.1.css" />
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════
+     هيكل التطبيق الرئيسي
+══════════════════════════════════════════════════════════ -->
+  <div class="app-layout" id="app">
+
+    <!-- ── Teacher HUD (شريط مدمج واحد — Classroom Redesign) ─────
+       دمج teacher-bar + phase-bar السابقين في طبقة واحدة مضغوطة.
+       كل الـ IDs التي يعتمد عليها app.js أُبقيت كما هي بالضبط،
+       والمعلومات الثانوية (الاختصارات/الهدف/الزمن/المؤقت/القفز
+       المباشر) نُقلت داخل لوحة "مساعدة المعلم" المنسدلة أدناه،
+       تظهر فقط عند الطلب عبر زر "؟" ولا تُعرض للطلاب افتراضياً. -->
+    <header class="teacher-hud" aria-label="شريط المعلم">
+
+      <!-- المنطقة اليمنى: رقم المرحلة + عنوان مختصر فقط -->
+      <div class="hud-phase">
+        <span class="phase-id-badge" id="phase-title">P1</span>
+        <span class="phase-title-text" id="phase-title-text">افتتاح الدرس</span>
+      </div>
+
+      <!-- المنطقة الوسطى: تلميح ديناميكي قصير (سطر واحد) -->
+      <div class="teacher-hint-zone" id="teacher-hint" aria-live="polite">
+        جاري تهيئة الدرس…
+      </div>
+
+      <!-- المنطقة اليسرى: مؤقت + أيقونات + لوحة مساعدة المعلم -->
+      <div class="hud-controls">
+        <div class="phase-timer" id="phase-timer" title="وقت المرحلة / المتوقع"></div>
+
+        <button class="hud-icon-btn" id="theme-toggle" onclick="toggleTheme()" title="الوضع النهاري" aria-label="تبديل إلى الوضع النهاري">
+          ☀
+        </button>
+
+        <details class="help-panel">
+          <summary class="hud-icon-btn" title="مساعدة المعلم">؟</summary>
+          <div class="help-panel-content" role="region" aria-label="مساعدة المعلم">
+            <div class="help-section-title">الاختصارات</div>
+            <div class="shortcut-pills">
+              <span class="pill">Space = تقدم</span>
+              <span class="pill">← = تراجع</span>
+              <span class="pill">R = كشف طارئ</span>
+              <span class="pill">H = إخفاء طارئ</span>
+              <span class="pill">A = انتباه</span>
+              <span class="pill">F = شاشة كاملة</span>
+              <span class="pill">T = تبديل الوضع</span>
+              <span class="pill">1–7 = قفز للمرحلة</span>
+            </div>
+
+            <div class="help-section-title">معلومات المرحلة</div>
+            <div class="phase-duration-text" id="phase-duration">٠ — ١٠ دقائق</div>
+            <div class="phase-goal-text" id="phase-goal">تأسيس البيئة الآمنة وتهيئة الطلاب</div>
+
+            <div class="help-section-title">الانتقال المباشر بين المراحل</div>
+            <nav class="phase-nav" id="phase-nav" aria-label="التنقل بين المراحل">
+              <!-- تُبنى ديناميكياً في app.js -->
+            </nav>
+          </div>
+        </details>
+
+        <button
+          class="hud-icon-btn secondary-language-hud-toggle"
+          id="secondary-language-toggle"
+          type="button"
+          aria-pressed="true"
+          aria-controls="app"
+          aria-label="اللغة الثانية ظاهرة. اضغط لإخفائها"
+          title="إخفاء اللغة الثانية"
+          onclick="toggleSecondaryLanguageVisibility()"
+        >
+          <svg class="secondary-language-hud-icon secondary-language-visible-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2.5 12s3.4-5.5 9.5-5.5S21.5 12 21.5 12s-3.4 5.5-9.5 5.5S2.5 12 2.5 12Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+          </svg>
+          <svg class="secondary-language-hud-icon secondary-language-hidden-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M3.5 3.5 20.5 20.5M9.8 6.8A10.7 10.7 0 0 1 12 6.5c6.1 0 9.5 5.5 9.5 5.5a18.1 18.1 0 0 1-3.3 3.7M6.2 8.4A18.6 18.6 0 0 0 2.5 12s3.4 5.5 9.5 5.5c.9 0 1.7-.1 2.5-.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9.7 9.7A3.2 3.2 0 0 0 14.3 14.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <button class="hud-icon-btn" onclick="toggleFullscreen()" title="شاشة كاملة (F)" aria-label="شاشة كاملة">
+          ⛶
+        </button>
+        <button class="hud-icon-btn" onclick="toggleAttentionMode()" title="استعادة الانتباه (A)"
+          aria-label="استعادة الانتباه">
+          ◎
+        </button>
+      </div>
+    </header>
+
+    <!-- ── منطقة المحتوى الرئيسية ──────────────────────────── -->
+    <main id="content-zone" role="main" aria-label="منطقة عرض المحتوى التعليمي">
+      <!-- المحتوى يُحقن ديناميكياً حسب المرحلة الحالية -->
+      <div style="color:var(--text-dim);font-size:1.5rem;">جاري تحميل الدرس…</div>
+    </main>
+
+    <!-- ── شريط التحكم السفلي ───────────────────────────────── -->
+    <footer class="controls-bar" aria-label="أدوات التحكم">
+      <div class="main-controls">
+        <button class="main-btn retreat" onclick="retreat()" title="تراجع (← أو Backspace)"
+          aria-label="تراجع للخطوة السابقة">
+          → تراجع
+        </button>
+        <button class="main-btn advance" onclick="advance()" title="تقدم (Space أو →)"
+          aria-label="التقدم للخطوة التالية">
+          تقدم ←
+        </button>
+      </div>
+
+      <div class="hint-zone" id="hint-zone" aria-live="polite">
+        <!-- التلميح الديناميكي يظهر هنا -->
+      </div>
+
+      <!-- زر الانتباه أصبح أساسياً في Teacher HUD أعلى الصفحة (◎).
+         أُبقي هذا الزر في الـHTML للتوافق كما طُلب، وأُخفي بصرياً
+         فقط عبر CSS (class="hud-duplicate-hidden") لمنع ازدواج
+         الظهور دون حذف العنصر أو تعديل app.js. -->
+      <div class="main-controls hud-duplicate-hidden">
+        <button class="main-btn attention" onclick="toggleAttentionMode()" title="استعادة الانتباه (A)"
+          aria-label="وضع استعادة انتباه الطلاب">
+          ◎ انتباه
+        </button>
+      </div>
+    </footer>
+
+    <!-- ── شريط التقدم ────────────────────────────────────────── -->
+    <div class="progress-rail" id="progress-rail" role="progressbar" aria-label="تقدم المحاضرة" aria-valuemin="0" aria-valuemax="100" aria-valuenow="14">
+      <div id="progress-rail-fill"></div>
+    </div>
+
+  </div>
+  <!-- /app-layout -->
+
+
+  <!-- ══════════════════════════════════════════════════════════
+     وضع استعادة الانتباه — Overlay
+══════════════════════════════════════════════════════════ -->
+  <div id="attention-overlay" role="dialog" aria-modal="true" aria-label="وضع استعادة الانتباه"
+    onclick="exitAttentionMode()">
+    <div class="attention-pulse">◎</div>
+    <div class="attention-text">انظروا إلى الشاشة</div>
+    <div class="attention-hint">اضغط A أو Space أو انقر للعودة</div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+     لافتة إنجاز المحاضرة (تُعرض بعد إتمام P7)
+     المحتوى (العنوان/الحروف/الخلاصة) يُبنى من LESSON_XX.meta.completion
+     في app.js عند التهيئة — الهيكل هنا ثابت لكل المحاضرات.
+══════════════════════════════════════════════════════════ -->
+  <div id="completion-banner" role="dialog" aria-modal="true" aria-label="إنجاز المحاضرة">
+    <div class="completion-inner">
+      <div class="completion-icon">🎓</div>
+      <div class="completion-title"></div>
+      <div class="completion-chars"></div>
+      <div class="completion-subtitle"></div>
+      <div class="completion-btns">
+        <button class="nav-btn primary" onclick="hideCompletionBanner(); goToPhase(0)">
+          ↺ إعادة من البداية
+        </button>
+        <button class="nav-btn" onclick="hideCompletionBanner()">
+          × إغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+     السكريبتات — بيانات الدرس أولاً، ثم محرك الأنشطة (engine)،
+     ثم أنشطة P1–P7، ثم محرك الصفحة app.js أخيراً.
+══════════════════════════════════════════════════════════ -->
+  <script src="js/loader.js"></script>
+  <script>
+    // القالب يقرأ بيانات الدرس ويطبّقها على عناصر الصفحة الثابتة.
+    // ملاحظة: LESSON معرَّف بوصفه const عاماً من lesson-XX.js — يُقرأ بالاسم المباشر.
+    (function () {
+      var m = (typeof LESSON !== 'undefined' && LESSON.meta) ? LESSON.meta : null;
+      if (!m) return;
+      if (m.docTitle) document.title = m.docTitle;
+      var d = document.getElementById('doc-description');
+      if (d && m.description) d.setAttribute('content', m.description);
+    })();
+  </script>
+  <script src="js/engine/activity-engine.js"></script>
+  <script src="js/engine/activity-definitions.js"></script>
+  <script src="js/engine/p6-d2-bridge.js"></script>
+  <script src="js/activities/welcome-orientation.js"></script>
+  <script src="js/activities/phoneme-explore.js"></script>
+  <script src="js/activities/letter-reveal.js"></script>
+  <script src="js/activities/stroke-video.js"></script>
+  <script src="js/activities/word-reveal.js"></script>
+  <script src="js/activities/auditory-discrimination.js"></script>
+  <script src="js/activities/assessment-quiz.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- updateHint و updatePhaseBar مُعرَّفتان بشكل نهائي في app.js — لا override هنا -->
+  <!-- تحميل الدرس: js/loader.js يقرأ ?lesson=XX ويحقن js/lesson-XX.js — لا يُنسخ القالب لأي درس -->
+
+</body>
+
+</html>

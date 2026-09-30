@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows (المشروع نُقل من ويندوز)
+Thumbs.db
+Desktop.ini
+
+# محرِّرات
+.vscode/
+.idea/
+*.swp
+
+# مؤقت
+*.log
+*.tmp

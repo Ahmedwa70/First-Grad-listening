@@ -1,0 +1,482 @@
+/* ============================================================================
+   v1.1 — Responsive Display System
+   --------------------------------------------------------------------------
+   Purpose: one viewport-aware layout system for the classroom desktop product.
+   Scope: layout and sizing only. No lesson data, interaction, navigation,
+   state, audio, colour identity, or instructional sequence is changed here.
+
+   Strategy
+   1. The application shell owns the available viewport block space.
+   2. The content zone is the single safe scrolling boundary for exceptional
+      content; normal classroom desktop states fit without page scrolling.
+   3. Components use the shared spacing and control tokens below, minmax(),
+      and natural document flow instead of competing fixed-height budgets.
+   4. Fixed block sizes remain only for deliberately stable reveal stages;
+      their values are bounded by the same viewport budget.
+   ============================================================================ */
+
+:root {
+  --v11-gutter-inline: clamp(0.75rem, 2vw, 2rem);
+  --v11-gutter-block: clamp(0.35rem, 1vh, 1.25rem);
+  --v11-content-gap: clamp(0.4rem, 1vh, 1rem);
+  --v11-hud-block: clamp(2.9rem, 6.4vh, 3.65rem);
+  --v11-control-block: clamp(2.7rem, 5.8vh, 3.35rem);
+  --v11-control-min: 2.5rem;
+  --v11-stage-inline: min(100%, 75rem);
+  --v11-reveal-card-block: clamp(18.75rem, 46vh, 29.4rem);
+  --v11-short-stage-card-block: clamp(18rem, 43vh, 21.5rem);
+}
+
+/* --------------------------------------------------------------------------
+   Application shell: the only global viewport constraint.
+   -------------------------------------------------------------------------- */
+html,
+body {
+  min-block-size: 100%;
+}
+
+body {
+  min-block-size: 100vh;
+  min-block-size: 100svh;
+}
+
+.app-layout {
+  min-block-size: 100vh;
+  min-block-size: 100svh;
+  block-size: 100vh;
+  block-size: 100dvh;
+  grid-template-rows: minmax(var(--v11-hud-block), auto) minmax(0, 1fr) auto 6px;
+  overflow: clip;
+}
+
+#content-zone {
+  min-block-size: 0;
+  min-inline-size: 0;
+  align-items: stretch;
+  padding: var(--v11-gutter-block) var(--v11-gutter-inline);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable both-edges;
+}
+
+#content-zone > :is(.p1-container, .p2-container, .p3-container, .p4-container, .p5-container, .p6-container, .p7-container) {
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Persistent chrome: intrinsic rows and normal-flow centre hint.
+   -------------------------------------------------------------------------- */
+.teacher-hud {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr);
+  min-block-size: var(--v11-hud-block);
+  padding-block: clamp(0.25rem, 0.7vh, 0.55rem);
+  padding-inline: var(--v11-gutter-inline);
+}
+
+.hud-phase,
+.hud-controls,
+.teacher-hint-zone {
+  min-inline-size: 0;
+}
+
+.teacher-hint-zone {
+  position: static;
+  transform: none;
+  max-inline-size: min(52vw, calc(100vw - 36rem));
+  justify-self: center;
+  overflow: hidden;
+}
+
+.hud-controls {
+  justify-self: end;
+}
+
+.controls-bar {
+  min-block-size: var(--v11-control-block);
+  padding-block: clamp(0.25rem, 0.65vh, 0.5rem);
+  padding-inline: var(--v11-gutter-inline);
+}
+
+.main-controls {
+  min-inline-size: 0;
+}
+
+.main-btn,
+.nav-btn,
+.ctrl-btn {
+  min-block-size: var(--v11-control-min);
+  line-height: 1.25;
+}
+
+/* --------------------------------------------------------------------------
+   P1 — Absolute scenes remain a justified stable stage. Scrolling, when an
+   exceptional short display requires it, happens inside the scene rather than
+   clipping text or competing with navigation.
+   -------------------------------------------------------------------------- */
+.p1-container {
+  block-size: 100%;
+  max-inline-size: var(--v11-stage-inline);
+}
+
+.p1-stage {
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding-block: var(--v11-gutter-block);
+}
+
+.p1-welcome-layout {
+  min-block-size: 100%;
+  block-size: auto;
+  justify-content: center;
+}
+
+.p1-hero-stage-card {
+  max-block-size: none;
+}
+
+/* --------------------------------------------------------------------------
+   P2 — The sound-card row consumes available space; the teacher rail is
+   intrinsic. This removes the cascade of competing 78/84/86px rail heights.
+   -------------------------------------------------------------------------- */
+.p2-container {
+  inline-size: min(100%, 68.75rem);
+  max-inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  row-gap: var(--v11-content-gap);
+}
+
+.p2-sound-buttons {
+  block-size: auto;
+  min-block-size: clamp(13.875rem, 36vh, 25.625rem);
+  align-self: stretch;
+}
+
+.p2-controls,
+.finger-count-guide,
+.p2-finish-zone {
+  min-block-size: var(--v11-control-min);
+  block-size: auto;
+}
+
+/* --------------------------------------------------------------------------
+   P3 — A fixed reveal canvas is intentional: each discovery has a reserved
+   grid track. The canvas uses one shared bounded block size, never a separate
+   component-level viewport budget.
+   -------------------------------------------------------------------------- */
+.p3-container {
+  inline-size: min(100%, 68.75rem);
+  min-block-size: 100%;
+  gap: var(--v11-content-gap);
+}
+
+.letter-card,
+.p3-nav {
+  inline-size: min(100%, 61.25rem);
+}
+
+/* P3 desktop revelation: each visual group receives a real grid track.
+   This keeps the glyph prominent while the sound/IPA and fact/Chinese-hint
+   stacks retain their own readable vertical rhythm after they are revealed. */
+@media (min-width: 901px) {
+  .p3-container {
+    --v11-p3-reveal-card-block: clamp(23.75rem, 46vh, 29.4rem);
+  }
+
+  .p3-container .letter-card {
+    block-size: var(--v11-p3-reveal-card-block);
+    min-block-size: 0;
+    max-block-size: none;
+    grid-template-rows: minmax(9.375rem, 1fr) minmax(5.75rem, max-content) minmax(5.5rem, max-content);
+  }
+
+  .p3-container :is(.card-dots-zone, .card-phoneme-zone, .card-fact-zone) {
+    block-size: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .letter-card {
+    block-size: var(--v11-reveal-card-block);
+    min-block-size: 0;
+    max-block-size: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   P4 — The writing panel receives available space. Its detail list retains a
+   local scroll only when content genuinely exceeds the stable writing canvas.
+   -------------------------------------------------------------------------- */
+.p4-container {
+  max-inline-size: 68.75rem;
+  min-block-size: 100%;
+  block-size: 100%;
+  padding: var(--v11-gutter-block) var(--v11-gutter-inline);
+  gap: var(--v11-content-gap);
+}
+
+.p4-card-wrapper {
+  overflow: visible;
+}
+
+.p4-card {
+  min-block-size: min(20rem, 100%);
+  block-size: 100%;
+  gap: clamp(0.75rem, 1.5vw, 2rem);
+  padding: clamp(0.75rem, 1.8vh, 2rem);
+}
+
+.p4-svg-zone,
+.p4-steps-panel {
+  min-block-size: 0;
+}
+
+/* --------------------------------------------------------------------------
+   P5 — The instructional card grows with Arabic and Chinese text. Shared
+   spacing changes reduce vertical pressure without suppressing content.
+   -------------------------------------------------------------------------- */
+.p5-container {
+  min-block-size: 100%;
+  block-size: 100%;
+  padding: var(--v11-gutter-block) var(--v11-gutter-inline);
+  gap: var(--v11-content-gap);
+}
+
+.p5-card-wrapper {
+  min-block-size: 0;
+  inline-size: 100%;
+}
+
+.p5-card {
+  inline-size: min(100%, 68.75rem);
+  padding: clamp(0.75rem, 2.5vh, 2.25rem) clamp(1rem, 3.5vw, 3.2rem);
+  gap: clamp(1rem, 3vw, 2.5rem);
+}
+
+.p5-meaning-caption,
+.p5-audio-row,
+.p5-review,
+.p5-nav {
+  max-inline-size: 100%;
+  flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------------------
+   P6 / P7 — Content owns the free centre track. Reveal content may increase
+   naturally; the shared content-zone becomes the safe fallback boundary.
+   -------------------------------------------------------------------------- */
+.p6-container,
+.p7-container {
+  inline-size: min(100%, 75rem);
+  min-block-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+}
+
+.p6-container {
+  padding: var(--v11-gutter-block) var(--v11-gutter-inline);
+  gap: var(--v11-content-gap);
+}
+
+.p6-main,
+.p7-main {
+  min-block-size: 0;
+}
+
+.p6-stage {
+  min-block-size: 0;
+  justify-content: center;
+}
+
+.p6-answer-zone {
+  min-block-size: clamp(8.5rem, 22vh, 13.75rem);
+}
+
+.p6-stepper {
+  block-size: 100%;
+  padding: var(--v11-gutter-block) var(--v11-gutter-inline);
+}
+
+.p7-container {
+  padding: var(--v11-gutter-block) var(--v11-gutter-inline);
+}
+
+.p7-shell {
+  min-block-size: 100%;
+  block-size: auto;
+  justify-content: center;
+}
+
+.p7-assessment-card {
+  min-block-size: clamp(12rem, 28vh, 16.25rem);
+  max-block-size: none;
+}
+
+.p7-assessment-card.revealed {
+  min-block-size: clamp(15rem, 34vh, 22rem);
+}
+
+.p7-card-answer {
+  max-block-size: none;
+}
+
+.p7-controls {
+  min-block-size: var(--v11-control-min);
+}
+
+/* --------------------------------------------------------------------------
+   Two system-level modes only. They alter common sizing tokens rather than
+   creating page-specific repair rules.
+   -------------------------------------------------------------------------- */
+@media (max-height: 760px) {
+  :root {
+    --v11-gutter-block: clamp(0.2rem, 0.65vh, 0.5rem);
+    --v11-content-gap: clamp(0.25rem, 0.65vh, 0.55rem);
+    --v11-hud-block: clamp(2.75rem, 6vh, 3.15rem);
+    --v11-control-block: clamp(2.55rem, 5.5vh, 2.95rem);
+    --v11-control-min: 2.35rem;
+  }
+
+  .p1-hero-stage-card {
+    gap: clamp(0.3rem, 0.7vh, 0.55rem);
+    padding: clamp(0.7rem, 1.5vh, 1rem) clamp(1rem, 2.5vw, 2rem);
+  }
+
+  .p1-hero-stage-card .p1-hero-letters .hero-char {
+    min-block-size: clamp(4.75rem, 11vh, 6.25rem);
+    font-size: clamp(3rem, 6.4vh, 4.6rem);
+  }
+
+  .p2-sound-buttons {
+    min-block-size: clamp(12.5rem, 34vh, 18.125rem);
+  }
+
+  .letter-card {
+    block-size: var(--v11-short-stage-card-block);
+    grid-template-rows: minmax(8.4rem, 1fr) minmax(3.1rem, auto) minmax(2.3rem, auto);
+  }
+
+  .p5-card {
+    padding-block: clamp(0.65rem, 1.6vh, 1rem);
+  }
+
+  .p6-answer-zone {
+    min-block-size: clamp(7.5rem, 18vh, 10rem);
+  }
+
+  .p7-assessment-card {
+    min-block-size: clamp(11.25rem, 24vh, 12.5rem);
+  }
+
+  .p7-assessment-card.revealed {
+    min-block-size: clamp(13.5rem, 30vh, 17.5rem);
+  }
+}
+
+@media (max-width: 900px) {
+  .teacher-hud {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .teacher-hint-zone {
+    display: none;
+  }
+
+  .controls-bar {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .p2-container {
+    block-size: auto;
+    min-block-size: 100%;
+    grid-template-rows: auto auto auto auto auto;
+  }
+
+  .p2-sound-buttons {
+    min-block-size: 0;
+  }
+
+  .p4-container,
+  .p5-container,
+  .p6-container,
+  .p7-container {
+    block-size: auto;
+    min-block-size: 100%;
+  }
+
+  .p5-card {
+    grid-template-columns: 1fr;
+  }
+  .p5-zone-info {
+    border-inline-start: none;
+    padding-inline-start: 0;
+  }
+  .p5-char {
+    font-size: clamp(3.2rem, 10vh, 6rem);
+  }
+
+  .p4-card {
+    block-size: auto;
+    min-block-size: 0;
+  }
+
+  .p6-d3-columns,
+  .p7-dot-anatomy-grid,
+  .p7-dot-chips-container {
+    max-inline-size: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-layout,
+  #content-zone {
+    scroll-behavior: auto;
+  }
+}
+
+/* P4 navigation reserves a control-height row; keep its decorative glyph
+   within that same row so it never creates a latent vertical scroll range. */
+.p4-nav {
+  min-block-size: var(--v11-control-min);
+  line-height: 1;
+}
+
+.p4-char-big {
+  font-size: clamp(2.1rem, 4.2vh, 2.55rem);
+  line-height: 1;
+}
+
+/* The P4 navigation row contains a letter marker and two controls. Bind every
+   child to the row token so padding from the legacy button skin cannot enlarge
+   the otherwise fixed classroom row on 720px-high displays. */
+.p4-nav > .nav-btn {
+  block-size: var(--v11-control-min);
+  min-block-size: var(--v11-control-min);
+  padding-block: 0;
+  line-height: 1;
+}
+
+.p4-char-big {
+  font-size: clamp(1.8rem, 3.7vh, 2.35rem);
+}
+
+/* P4 hardening: compact-height displays reserve extra room for intrinsic
+   Arabic glyph extents in the navigation row. Return the vertical gutter to
+   the flex content track; no content is hidden, clipped, or scaled. */
+@media (max-height: 760px) {
+  .p4-container {
+    padding-block: 0;
+  }
+
+  .p4-nav {
+    min-block-size: calc(var(--v11-control-min) + 1.25rem);
+  }
+
+  .p4-char-big {
+    line-height: 1;
+  }
+}

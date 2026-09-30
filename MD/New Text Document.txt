@@ -1,0 +1,183 @@
+مهمة هندسية صارمة: إعادة هيكلة وتنظيم مشروع Arabic Stroke Engine قبل التوسع إلى باقي الحروف
+انت تعمل داخل المسار التالي:
+D:\Educational Encyclopedia\Arabic\Ai\working_now\First-Grad-WorkSync\First-Grad-WorkSync\MVP-lecture\018-Classroom-Fix-P6-2\Lesson-01-classroom-P6-Fixed\md\Arabic Stroke
+الهدف
+تم اعتماد نموذج حرف الباء (ب) بنجاح كأول نموذج عملي لمحرك الكتابة العربية بأسلوب Hanzi Writer.
+قبل البدء في تنفيذ الحروف الـ 27 المتبقية، يجب إعادة تنظيم المشروع بالكامل وفق معمارية قابلة للتوسع والإدارة طويلة المدى.
+هذه ليست عملية تجميل للمجلدات، بل إعادة تأسيس لبنية المشروع بحيث تستوعب:
+جميع الحروف العربية.
+عائلات الحروف.
+الأشكال الأربعة للحرف:isolated
+initial
+medial
+final
+
+ملفات البيانات الهندسية.
+ملفات التوثيق.
+أدوات الاستخراج والمعايرة.
+تقارير الاختبار.
+القاعدة الأساسية
+ممنوع إنشاء ملفات عشوائية في الجذر مستقبلاً.
+يجب أن يكون لكل نوع من الملفات مكان محدد وواضح.
+أي تقرير جديد أو أداة جديدة يجب أن تتبع هذا النظام.
+الهيكل المعتمد المطلوب إنشاؤه
+Arabic Stroke Engine
+│
+├── README.md
+├── PROJECT_ARCHITECTURE.md
+├── CHANGELOG.md
+│
+├── data/
+│   │
+│   ├── arabic-strokes-db.v0.1.json
+│   │
+│   ├── letters/
+│   │   ├── ba.json
+│   │   ├── ta.json
+│   │   ├── tha.json
+│   │   └── ...
+│   │
+│   ├── families/
+│   │   ├── baa_family.json
+│   │   ├── noon_family.json
+│   │   └── ...
+│   │
+│   └── fonts/
+│       └── font-profile.json
+│
+│
+├── engine/
+│   │
+│   ├── renderer/
+│   │   ├── outline-renderer.js
+│   │   ├── mask-engine.js
+│   │   └── svg-layer-manager.js
+│   │
+│   ├── animation/
+│   │   ├── stroke-animation.js
+│   │   └── timing-controller.js
+│   │
+│   └── core/
+│       ├── data-loader.js
+│       └── validation.js
+│
+│
+├── characters/
+│   │
+│   ├── ba/
+│   │   │
+│   │   ├── data/
+│   │   │   └── ba.json
+│   │   │
+│   │   ├── reports/
+│   │   │   ├── diagnosis.md
+│   │   │   ├── calibration.md
+│   │   │   └── completion-test.md
+│   │   │
+│   │   └── assets/
+│   │       ├── outline.svg
+│   │       └── preview.png
+│   │
+│   ├── ta/
+│   ├── tha/
+│   └── nun/
+│
+│
+├── docs/
+│   │
+│   ├── architecture/
+│   │   ├── ENGINE_DESIGN.md
+│   │   ├── DATA_SCHEMA.md
+│   │   └── MASK_ARCHITECTURE.md
+│   │
+│   ├── development/
+│   │   ├── workflow.md
+│   │   └── calibration-process.md
+│   │
+│   └── decisions/
+│       └── ADR/
+│
+│
+├── tools/
+│   │
+│   ├── extraction/
+│   │   └── extract-outline.py
+│   │
+│   ├── validation/
+│   │   └── validate-dataset.py
+│   │
+│   └── generation/
+│
+│
+└── poc/
+    │
+    └── ba-engine/
+        ├── index.html
+        ├── engine.js
+        ├── style.css
+        └── README.md
+قواعد تنظيم صارمة
+1. حرف الباء يصبح النموذج المرجعي
+لا تنقل الملفات فقط.
+قم بتجميع كل ما يتعلق بالباء داخل:
+characters/ba/
+ويشمل:
+بيانات الباء.
+تقارير التشخيص.
+تقارير المعايرة.
+نتائج الاختبارات.
+الأصول الهندسية.
+2. فصل البيانات عن المحرك
+القرار المعماري النهائي:
+المحرك لا يعرف شيئاً عن حرف الباء.
+ممنوع وجود:
+if(letter==="ba")
+أو أي إحداثيات داخل JavaScript.
+المحرك يقرأ:
+letter.json
+ويطبق القواعد العامة فقط.
+3. إنشاء نظام تقارير للحروف
+كل حرف مستقبلاً يجب أن يحتوي على نفس دورة العمل:
+Character Creation Flow
+
+1- outline extraction
+2- median definition
+3- stroke order definition
+4- calibration
+5- visual testing
+6- approval
+7- production release
+4. إنشاء ملف متابعة رئيسي
+أنشئ:
+CHARACTER_PROGRESS_TRACKER.md
+يحتوي:
+الحرف	البيانات	outline	median	animation	status
+ب	مكتمل	مكتمل	مكتمل	مكتمل	Approved
+ت	-	-	-	-	Pending
+ث	-	-	-	-	Pending
+
+
+المطلوب النهائي من التنفيذ
+نفذ بالترتيب:
+إنشاء الهيكل الجديد.
+نقل الملفات الحالية إلى أماكنها المناسبة.
+عدم حذف أي تقرير.
+تحديث المسارات الداخلية.
+إنشاء README يشرح المعمارية الجديدة.
+التأكد أن PoC الباء يعمل بعد النقل بدون أي تغيير في السلوك.
+إنشاء تقرير Migration يوضح:الملفات المنقولة.
+الملفات الجديدة.
+أي مسارات تم تعديلها.
+
+معيار النجاح
+بعد التنفيذ يجب أن يكون المشروع جاهزاً لإضافة:
+ت
+ث
+ن
+ج
+ح
+خ
+...
+بنفس القالب دون إعادة تصميم النظام.
+لا تضف أي حروف جديدة الآن.
+الهدف هو تثبيت البنية الإنتاجية لمحرك Arabic Stroke Engine.
