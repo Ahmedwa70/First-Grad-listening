@@ -1,0 +1,340 @@
+/* ═══════════════════════════════════════════════════════════════
+   لوحة التحكم — التصميم.
+
+   الهوية ليست منقولة بل مُستهلَكة: كل لون وخطّ هنا يأتي من رموز
+   css/style.css نفسها، فالوضع الليلي والنهاري يتبعان المحاضرة
+   تلقائياً، وأي تغيير في هوية المشروع ينعكس هنا بلا تكرار.
+
+   كل الأصناف مسبوقة بـ dash- أو dl- فلا تتقاطع مع قواعد المحاضرة.
+   ═══════════════════════════════════════════════════════════════ */
+
+.dash-body {
+  --dash-gutter: clamp(1rem, 3.5vw, 3.5rem);
+  --dash-radius: 16px;
+  --dash-hairline: 1px solid var(--th-border-subtle);
+  --dash-gold-line: rgba(201, 162, 39, 0.28);
+
+  display: block;
+  min-block-size: 100vh;
+  background:
+    radial-gradient(1200px 520px at 100% -10%, rgba(201,162,39,0.07), transparent 60%),
+    radial-gradient(900px 480px at 0% 0%, rgba(14,124,123,0.07), transparent 55%),
+    var(--bg-main);
+  padding-block-end: 2rem;
+}
+
+/* ── الترويسة ───────────────────────────────────────────────── */
+.dash-header {
+  padding-block: clamp(1.5rem, 4vh, 2.75rem) 0;
+  padding-inline: var(--dash-gutter);
+}
+
+.dash-header-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  max-inline-size: 1600px;
+  margin-inline: auto;
+}
+
+.dash-title {
+  margin: 0;
+  font-size: clamp(1.7rem, 3.2vw, 2.9rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.dash-subtitle {
+  margin: 0.35rem 0 0;
+  font-size: clamp(0.82rem, 1.2vw, 1.02rem);
+  color: var(--text-dim);
+}
+
+.dash-header-actions { display: flex; gap: 0.5rem; }
+
+.dash-icon-btn {
+  inline-size: 2.4rem;
+  block-size: 2.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  border-radius: 9px;
+  background: var(--th-bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--th-border-default);
+  transition: all var(--dur-fast);
+}
+.dash-icon-btn:hover { color: var(--gold); border-color: var(--dash-gold-line); transform: translateY(-1px); }
+
+/* زخرفة فاصلة — نفس مفردات المحاضرة البصرية */
+.dash-ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  margin-block: clamp(1rem, 2.5vh, 1.6rem) 0;
+  color: var(--gold);
+  font-size: 0.7rem;
+  opacity: 0.5;
+  position: relative;
+}
+.dash-ornament::before,
+.dash-ornament::after {
+  content: '';
+  flex: 1 1 auto;
+  max-inline-size: min(28vw, 22rem);
+  block-size: 1px;
+  background: linear-gradient(to left, transparent, var(--dash-gold-line));
+}
+.dash-ornament::after { background: linear-gradient(to right, transparent, var(--dash-gold-line)); }
+.dash-ornament span:nth-child(2) { font-size: 0.85rem; opacity: 0.85; }
+
+/* ── الجسم ──────────────────────────────────────────────────── */
+.dash-main {
+  max-inline-size: 1600px;
+  margin-inline: auto;
+  padding-inline: var(--dash-gutter);
+  padding-block-start: clamp(1.2rem, 3vh, 2rem);
+}
+
+/* ── شريط الفحص ─────────────────────────────────────────────── */
+.dash-scanning { max-inline-size: 30rem; margin-inline: auto; text-align: center; padding-block: 3rem; }
+.dash-scan-label { font-size: 1rem; font-weight: 700; color: var(--text-secondary); margin-block-end: 0.9rem; }
+
+.dash-scan-track {
+  block-size: 6px;
+  border-radius: 999px;
+  background: var(--th-bg-card);
+  border: var(--dash-hairline);
+  overflow: hidden;
+}
+.dash-scan-fill {
+  block-size: 100%;
+  inline-size: 0;
+  border-radius: 999px;
+  background: linear-gradient(to left, var(--teal), var(--gold));
+  transition: inline-size 320ms var(--ease-out);
+}
+.dash-scan-note { margin-block-start: 0.7rem; font-size: 0.78rem; color: var(--text-dim); }
+
+/* ── الخلاصة ────────────────────────────────────────────────── */
+.dash-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: clamp(0.7rem, 1.4vw, 1.1rem);
+  margin-block-end: clamp(1.4rem, 3vh, 2.2rem);
+}
+
+.dash-stat {
+  position: relative;
+  padding: clamp(0.9rem, 1.6vw, 1.25rem);
+  border-radius: var(--dash-radius);
+  background: var(--th-bg-card);
+  border: var(--dash-hairline);
+  border-block-start: 3px solid var(--dash-stat-tone, var(--gold));
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.dash-stat[data-tone="lessons"]  { --dash-stat-tone: var(--gold); }
+.dash-stat[data-tone="complete"] { --dash-stat-tone: var(--green); }
+.dash-stat[data-tone="audio"]    { --dash-stat-tone: var(--teal); }
+.dash-stat[data-tone="video"]    { --dash-stat-tone: var(--violet); }
+
+.dash-stat-label { font-size: 0.78rem; font-weight: 700; color: var(--text-dim); }
+.dash-stat-value {
+  font-size: clamp(1.5rem, 2.6vw, 2.15rem);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  text-align: right;
+  unicode-bidi: plaintext;
+}
+.dash-stat-meta { font-size: 0.74rem; color: var(--text-secondary); }
+
+/* ── المرشّحات ──────────────────────────────────────────────── */
+.dash-filters { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-block-end: clamp(1rem, 2vh, 1.5rem); }
+
+.dash-filter {
+  padding: 0.42rem 1.05rem;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--th-border-default);
+  transition: all var(--dur-fast);
+}
+.dash-filter:hover { color: var(--text-primary); border-color: var(--dash-gold-line); }
+.dash-filter.is-active { background: var(--gold); color: #fff; border-color: var(--gold); }
+
+/* ── شبكة الدروس ────────────────────────────────────────────── */
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr));
+  gap: clamp(0.8rem, 1.6vw, 1.35rem);
+  align-items: start;
+}
+
+.dl-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: clamp(1rem, 1.8vw, 1.4rem);
+  border-radius: var(--dash-radius);
+  background: var(--th-bg-card);
+  border: var(--dash-hairline);
+  border-block-start: 3px solid var(--dl-tone, var(--th-border-default));
+  box-shadow: var(--th-shadow-sm);
+  transition: transform var(--dur-fast), box-shadow var(--dur-fast), border-color var(--dur-fast);
+}
+.dl-card:hover { transform: translateY(-2px); box-shadow: var(--th-shadow-md); }
+
+.dl-card[data-status="complete"]   { --dl-tone: var(--green); }
+.dl-card[data-status="incomplete"] { --dl-tone: var(--amber); }
+.dl-card[data-status="empty"]      { --dl-tone: var(--rust); }
+.dl-card[data-status="unbuilt"]    { --dl-tone: var(--th-border-default); opacity: 0.55; }
+.dl-card[data-status="unbuilt"]:hover { transform: none; }
+
+.dl-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+
+.dl-badge {
+  flex: 0 0 auto;
+  inline-size: 2.3rem;
+  block-size: 2.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--dl-tone, var(--gold));
+  background: color-mix(in srgb, var(--dl-tone, var(--gold)) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--dl-tone, var(--gold)) 35%, transparent);
+}
+
+.dl-titles { flex: 1 1 auto; min-inline-size: 0; }
+.dl-title { margin: 0; font-size: 1.02rem; font-weight: 800; color: var(--text-primary); line-height: 1.3; }
+.dl-sub { margin: 0.1rem 0 0; font-size: 0.8rem; color: var(--text-dim); letter-spacing: 0.08em; }
+
+.dl-status {
+  flex: 0 0 auto;
+  align-self: center;
+  padding: 0.22rem 0.62rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--dl-tone, var(--text-dim));
+  background: color-mix(in srgb, var(--dl-tone, var(--gold)) 12%, transparent);
+  white-space: nowrap;
+}
+
+/* الحروف بألوانها من بيانات الدرس — أقوى رابط بصري بين اللوحة والمحاضرة */
+.dl-letters { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.dl-letter {
+  inline-size: 2.6rem;
+  block-size: 2.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--lc);
+  background: color-mix(in srgb, var(--lc) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lc) 28%, transparent);
+}
+
+.dl-bars { display: flex; flex-direction: column; gap: 0.5rem; }
+.dl-bar-head { display: flex; justify-content: space-between; font-size: 0.74rem; color: var(--text-dim); margin-block-end: 0.22rem; }
+.dl-bar-num { font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: plaintext; }
+.dl-bar-track { block-size: 5px; border-radius: 999px; background: var(--th-bg-hover); overflow: hidden; }
+.dl-bar-fill { block-size: 100%; border-radius: 999px; background: var(--gold); transition: inline-size 420ms var(--ease-out); }
+.dl-bar[data-state="full"] .dl-bar-fill { background: var(--green); }
+.dl-bar[data-state="none"] .dl-bar-fill { background: var(--rust); }
+.dl-bar[data-state="part"] .dl-bar-fill { background: var(--amber); }
+
+/* تفاصيل النقص */
+.dl-details { border-block-start: var(--dash-hairline); padding-block-start: 0.65rem; }
+.dl-details summary {
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  list-style: none;
+}
+.dl-details summary::-webkit-details-marker { display: none; }
+.dl-details summary::before { content: '▸ '; color: var(--gold); }
+.dl-details[open] summary::before { content: '▾ '; }
+
+.dl-miss { margin-block-start: 0.6rem; display: flex; flex-direction: column; gap: 0.7rem; }
+.dl-miss-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; font-size: 0.74rem; font-weight: 700; color: var(--text-secondary); }
+.dl-miss-head code { font-size: 0.64rem; color: var(--text-dim); direction: ltr; unicode-bidi: plaintext; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dl-miss-list { margin: 0.25rem 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.05rem 0.5rem; }
+.dl-miss-list li { font-size: 0.72rem; color: var(--text-primary); direction: ltr; text-align: right; unicode-bidi: plaintext; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.dl-empty-note { margin: 0; font-size: 0.8rem; color: var(--text-dim); }
+
+.dl-actions { margin-block-start: auto; padding-block-start: 0.3rem; }
+.dl-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.48rem 1.1rem;
+  border-radius: 9px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--teal);
+  background: color-mix(in srgb, var(--teal) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--teal) 30%, transparent);
+  transition: all var(--dur-fast);
+}
+.dl-open:hover { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+/* ── حالة الحجب ─────────────────────────────────────────────── */
+.dash-blocked { max-inline-size: 34rem; margin: 3rem auto; text-align: center; padding: 2rem; border-radius: var(--dash-radius); background: var(--th-bg-card); border: 1px solid var(--dash-gold-line); }
+.dash-blocked-icon { font-size: 1.8rem; color: var(--amber); margin-block-end: 0.6rem; }
+.dash-blocked h2 { margin: 0 0 0.6rem; font-size: 1.1rem; color: var(--text-primary); }
+.dash-blocked p { margin: 0 0 0.4rem; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.7; }
+.dash-blocked-hint { color: var(--text-dim) !important; font-size: 0.8rem !important; }
+
+/* ── التذييل ────────────────────────────────────────────────── */
+.dash-footer { margin-block-start: clamp(2rem, 5vh, 3.5rem); text-align: center; color: var(--text-dim); font-size: 0.76rem; }
+.dash-footer-ornament { display: block; color: var(--gold); opacity: 0.4; margin-block-end: 0.4rem; letter-spacing: 0.3em; }
+
+/* الإطار القارئ — موجود ولا يُرى */
+.dash-reader { position: fixed; inset-block-start: -9999px; inline-size: 1px; block-size: 1px; border: 0; opacity: 0; pointer-events: none; }
+
+/* ── شاشات العرض الكبيرة: القاعة والبروجكتور ────────────────── */
+@media (min-width: 1800px) {
+  .dash-body { --dash-radius: 20px; }
+  .dash-grid { grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr)); }
+  .dl-title { font-size: 1.15rem; }
+  .dl-letter { inline-size: 3rem; block-size: 3rem; font-size: 1.75rem; }
+}
+
+/* ── الشاشات الضيقة ─────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .dash-header-inner { flex-direction: column; align-items: stretch; }
+  .dash-header-actions { justify-content: flex-start; }
+  .dl-miss-list { grid-template-columns: 1fr; }
+  .dash-ornament::before, .dash-ornament::after { max-inline-size: 18vw; }
+}
+
+/* ── تقليل الحركة ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .dl-card, .dl-bar-fill, .dash-scan-fill, .dash-icon-btn, .dl-open { transition: none; }
+  .dl-card:hover { transform: none; }
+}

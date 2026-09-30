@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<title>قارئ بيانات الدرس</title>
+</head>
+<body>
+<!--
+  قارئ معزول لدرس واحد — لا يُفتح مباشرة، تستعمله لوحة التحكم داخل إطار مخفي.
+
+  لماذا إطار مستقل؟ لأن كل ملف درس يُعرّف `const LESSON` في النطاق العام،
+  فتحميل درسين في صفحة واحدة يرفع خطأ إعادة التعريف. كل فتحة لهذا القارئ
+  مستند جديد بنطاق نظيف، فيُقرأ درس واحد ثم يُرسل بـ postMessage.
+  postMessage يعبر حدود المصادر، فيعمل عبر http وعبر الفتح المباشر للملفات.
+
+  لا يُعدَّل هنا شيء من الدرس — قراءة فقط.
+-->
+<script>
+(function () {
+  'use strict';
+
+  var n = (location.search.match(/[?&]n=(\d{2})/) || [])[1];
+
+  function reply(payload) {
+    payload.n = n;
+    try { parent.postMessage(payload, '*'); } catch (e) {}
+  }
+
+  if (!n) { reply({ ok: false, reason: 'no-id' }); return; }
+
+  // مسار مجلد وسائط الدرس — مطابق لـ _lessonAudioDir في js/app.js.
+  // app.js هو المرجع؛ أي تغيير هناك يجب أن ينعكس هنا.
+  function lessonDir(meta) {
+    if (!meta) return null;
+    if (typeof meta.id === 'string' && /^lesson-\d+$/.test(meta.id)) return meta.id;
+    if (Number.isInteger(meta.number) && meta.number > 0) {
+      return 'lesson-' + String(meta.number).padStart(2, '0');
+    }
+    return null;
+  }
+
+  // مسح بنية الدرس كاملة بحثاً عن حقول الوسائط — لا أسماء أقسام ثابتة،
+  // فأي قسم يُضاف لاحقاً يُقرأ تلقائياً. (نفس منهج MediaCheck في app.js.)
+  function collect(root) {
+    var audio = [], video = [], seen = [];
+    function walk(node, depth) {
+      if (!node || typeof node !== 'object' || depth > 8) return;
+      if (seen.indexOf(node) !== -1) return;
+      seen.push(node);
+      if (Object.prototype.toString.call(node) === '[object Array]') {
+        for (var i = 0; i < node.length; i++) walk(node[i], depth + 1);
+        return;
+      }
+      for (var k in node) {
+        if (!Object.prototype.hasOwnProperty.call(node, k)) continue;
+        var v = node[k];
+        if (typeof v === 'string' && v) {
+          if (k === 'audioFile' && audio.indexOf(v) === -1) audio.push(v);
+          else if (k === 'videoFile' && video.indexOf(v) === -1) video.push(v);
+        } else if (v && typeof v === 'object') walk(v, depth + 1);
+      }
+    }
+    walk(root, 0);
+    return { audio: audio, video: video };
+  }
+
+  function resolve(file, kind, dir) {
+    var m = new RegExp('^assets/' + kind + '/(.+)$').exec(file);
+    if (!m) return file;
+    if (m[1].indexOf('/') !== -1) return file;      // مسار كامل أصلاً
+    return dir ? 'assets/' + kind + '/' + dir + '/' + m[1] : file;
+  }
+
+  var s = document.createElement('script');
+  s.src = 'lesson-' + n + '.js';
+
+  s.onload = function () {
+    try {
+      // ملفات الدروس تستعمل `const LESSON`، وهو يسكن نطاق السكربت لا window.
+      // فيُقرأ بالاسم المجرّد، مع typeof تجنّباً لخطأ المرجع إن غاب.
+      var L = (typeof LESSON !== 'undefined') ? LESSON
+            : (typeof window.LESSON !== 'undefined') ? window.LESSON : null;
+      if (!L || !L.meta) { reply({ ok: false, reason: 'no-data' }); return; }
+      var dir = lessonDir(L.meta);
+      var found = collect(L);
+      reply({
+        ok: true,
+        meta: {
+          id: L.meta.id || '',
+          number: L.meta.number || Number(n),
+          title: L.meta.title || '',
+          subtitle: L.meta.subtitle || '',
+          duration: L.meta.duration || null,
+          level: L.meta.level || ''
+        },
+        letters: (L.letters || []).map(function (x) {
+          return { char: x.char, name: x.name, color: x.color || '' };
+        }),
+        audio: found.audio.map(function (f) { return resolve(f, 'audio', dir); }),
+        video: found.video.map(function (f) { return resolve(f, 'videos', dir); })
+      });
+    } catch (e) {
+      reply({ ok: false, reason: 'read-error', detail: String(e && e.message) });
+    }
+  };
+
+  s.onerror = function () { reply({ ok: false, reason: 'not-built' }); };
+
+  document.head.appendChild(s);
+})();
+</script>
+</body>
+</html>
