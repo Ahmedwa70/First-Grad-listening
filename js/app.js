@@ -49,6 +49,129 @@ const STATE = {
   secondaryLanguageVisible: true,
 };
 
+// ══════════════════════════════════════════════════════════════
+// حفظ الموضع — يحمي الحصة من تحديث الصفحة أو توقف المتصفح.
+// يُحفظ رقم المرحلة فقط (مع رصد P7 وتفضيل اللغة الثانية)، لأن كل
+// initPX تصفّر حالتها الداخلية عمداً — فلا يُوعَد بما لا يُضمن.
+// كل وصول إلى localStorage مغلّف بـ try/catch: قد يُرمى في التصفح الخاص.
+// ══════════════════════════════════════════════════════════════
+const LessonProgress = {
+  _VERSION: 1,
+  _MAX_AGE: 12 * 60 * 60 * 1000,   // 12 ساعة — أطول من أي حصة
+  _last: '',
+  _timer: null,
+  _suspended: false,   // معلّق ما دامت بطاقة الاستئناف مفتوحة
+
+  _key() {
+    const id = (typeof LESSON !== 'undefined' && LESSON.meta && LESSON.meta.id) || '';
+    return id ? 'lesson-progress:' + id : '';
+  },
+
+  save() {
+    // لا ندهس الموضع المحفوظ والمعلم لم يجب بعد عن بطاقة الاستئناف.
+    if (this._suspended) return;
+    const key = this._key();
+    if (!key) return;
+    let json;
+    try {
+      json = JSON.stringify({
+        v: this._VERSION,
+        at: Date.now(),
+        currentPhaseIndex: STATE.currentPhaseIndex,
+        p7Scores: STATE.p7Scores,
+        secondaryLanguageVisible: STATE.secondaryLanguageVisible,
+      });
+    } catch (e) { return; }
+    if (json === this._last) return;           // لا كتابة بلا تغيّر
+    this._last = json;
+    try { localStorage.setItem(key, json); } catch (e) {}
+  },
+
+  load() {
+    const key = this._key();
+    if (!key) return null;
+    let raw = null;
+    try { raw = localStorage.getItem(key); } catch (e) { return null; }
+    if (!raw) return null;
+    let d = null;
+    try { d = JSON.parse(raw); } catch (e) { this.clear(); return null; }
+    if (!d || d.v !== this._VERSION) { this.clear(); return null; }
+    if (typeof d.at !== 'number' || Date.now() - d.at > this._MAX_AGE) { this.clear(); return null; }
+    const i = d.currentPhaseIndex;
+    // المرحلة الأولى لا تستحقّ سؤالاً — هي البداية أصلاً.
+    if (!Number.isInteger(i) || i <= 0 || !Array.isArray(phases) || i >= phases.length) return null;
+    return d;
+  },
+
+  clear() {
+    const key = this._key();
+    this._last = '';
+    if (key) { try { localStorage.removeItem(key); } catch (e) {} }
+  },
+
+  start() {
+    if (this._timer) return;
+    this._timer = setInterval(() => this.save(), 2000);
+    window.addEventListener('beforeunload', () => this.save());
+    document.addEventListener('visibilitychange', () => { if (document.hidden) this.save(); });
+  },
+};
+
+// بطاقة الاستئناف — تظهر فوق المرحلة الأولى عند وجود موضع محفوظ.
+function showResumePrompt(saved) {
+  const i = saved.currentPhaseIndex;
+  const ph = phases[i];
+  if (!ph) { goToPhase(0); return; }
+
+  const t = new Date(saved.at);
+  const hhmm = String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0');
+
+  const overlay = document.createElement('div');
+  overlay.className = 'resume-overlay';
+  overlay.innerHTML = `
+    <div class="resume-card" role="dialog" aria-modal="true" aria-labelledby="resume-title">
+      <div class="resume-icon" aria-hidden="true">↩</div>
+      <h2 class="resume-title" id="resume-title">هل تستكمل الحصة؟</h2>
+      <p class="resume-body">توقّفتَ عند <strong>${ph.id} — ${ph.title}</strong></p>
+      <p class="resume-time">آخر نشاط: ${hhmm}</p>
+      <div class="resume-actions">
+        <button class="resume-btn primary" id="resume-yes">استكمال من ${ph.id}</button>
+        <button class="resume-btn ghost" id="resume-no">ابدأ من جديد</button>
+      </div>
+      <p class="resume-note">الاستكمال يعيدك إلى بداية ${ph.id}، لا إلى الشريحة نفسها.</p>
+    </div>`;
+
+  const pick = (resume) => {
+    document.removeEventListener('keydown', guard, true);
+    overlay.remove();
+    LessonProgress._suspended = false;
+    if (!resume) { LessonProgress.clear(); goToPhase(0); return; }
+    goToPhase(i);
+    // بعد goToPhase لا قبله: initP7 تصفّر p7Scores.
+    if (saved.p7Scores && typeof saved.p7Scores === 'object') STATE.p7Scores = saved.p7Scores;
+    if (typeof saved.secondaryLanguageVisible === 'boolean') {
+      STATE.secondaryLanguageVisible = saved.secondaryLanguageVisible;
+      syncSecondaryLanguageVisibility();
+    }
+  };
+
+  // حاجز لوحة المفاتيح: منع Space/← من تحريك الدرس خلف البطاقة.
+  const guard = (e) => {
+    if (e.key === 'Enter')  { e.preventDefault(); e.stopPropagation(); pick(true);  return; }
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); pick(false); return; }
+    e.stopPropagation();
+  };
+
+  LessonProgress._suspended = true;
+  goToPhase(0);
+  document.body.appendChild(overlay);
+  document.addEventListener('keydown', guard, true);
+  overlay.querySelector('#resume-yes').addEventListener('click', () => pick(true));
+  overlay.querySelector('#resume-no').addEventListener('click', () => pick(false));
+  const first = overlay.querySelector('#resume-yes');
+  if (first) first.focus();
+}
+
 function _lessonAudioDir(meta) {
   const m = meta || (typeof LESSON !== 'undefined' ? LESSON.meta : null);
   if (!m) return null;
@@ -462,6 +585,7 @@ function goToPhase(index, options = {}) {
 
   updatePhaseBar();
   updateProgressRail();
+  LessonProgress.save();
 
   switch (phase.id) {
     case 'P1': initP1(); break;
@@ -763,7 +887,9 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
-  goToPhase(0);
+  const _savedProgress = LessonProgress.load();
+  if (_savedProgress) showResumePrompt(_savedProgress); else goToPhase(0);
+  LessonProgress.start();
 
   // Click-Outside Listener لإغلاق لوحة مساعدة المعلم
   // ─────────────────────────────────────────────────

@@ -7778,3 +7778,125 @@ html:not([data-theme="light"]) #content-zone:has(.p2-container)::before {
 html.secondary-language-hidden .secondary-language {
   display: none !important;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   بطاقة استئناف الحصة — تظهر عند وجود موضع محفوظ بعد تحديث
+   الصفحة. أسماء الأصناف جديدة بالكامل (resume-*) فلا تتعارض
+   مع أي قاعدة قائمة. الألوان من متغيرات النظام، فتتبع الوضع
+   الليلي والنهاري تلقائياً.
+   ═══════════════════════════════════════════════════════════ */
+.resume-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  direction: rtl;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+  animation: resumeFade 0.18s ease-out;
+}
+
+@keyframes resumeFade { from { opacity: 0; } to { opacity: 1; } }
+
+.resume-card {
+  width: min(30rem, 100%);
+  padding: 1.9rem 1.7rem 1.5rem;
+  border-radius: 16px;
+  text-align: center;
+  background: var(--th-bg-card);
+  border: 1px solid var(--th-border-default);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
+  animation: resumeRise 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes resumeRise {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+.resume-icon {
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+
+.resume-title {
+  margin: 0 0 0.6rem;
+  font-size: 1.22rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.resume-body {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.resume-body strong { color: var(--text-gold); font-weight: 800; }
+
+.resume-time {
+  margin: 0 0 1.25rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.resume-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.resume-btn {
+  padding: 0.6rem 1.35rem;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+}
+
+/* الزر الأساسي مصمت لا شفّاف: التباين يجب أن يصمد في الوضعين
+   الليلي والنهاري (أبيض على #0E7C7B ≈ 4.8:1 — يجتاز AA). */
+.resume-btn.primary {
+  background: var(--teal);
+  color: var(--th-text-on-accent);
+  border: none;
+}
+
+.resume-btn.primary:hover {
+  background: var(--th-accent-hover, var(--teal));
+  transform: scale(1.03);
+  box-shadow: 0 4px 14px rgba(14, 124, 123, 0.35);
+}
+
+.resume-btn.ghost {
+  background: var(--th-bg-hover);
+  color: var(--text-dim);
+  border: 1px solid var(--th-border-default);
+}
+
+.resume-btn.ghost:hover { background: var(--th-bg-active); color: var(--text-primary); }
+
+.resume-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.resume-note {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  opacity: 0.85;
+}
+
+@media (max-width: 480px) {
+  .resume-actions { flex-direction: column; }
+  .resume-btn { width: 100%; }
+}
