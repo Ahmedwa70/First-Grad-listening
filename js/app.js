@@ -118,6 +118,140 @@ const LessonProgress = {
 };
 
 // ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+// ورقة نتيجة الفصل — تحوّل رصد P7 إلى صفحة تُقرأ وتُطبع.
+// الرصد في P7 جماعي («رصد استجابة الصف») لا فردي، فالورقة تقرير
+// عن الفصل: كل حرف × كل مهارة اختبرتها الجولات الثلاث.
+// الورقة بيضاء دائماً مهما كان وضع الواجهة — هي ورق لا شاشة.
+// ══════════════════════════════════════════════════════════════
+const ClassReport = {
+  _CLASS_KEY: 'class-name',
+  _TEXT: { correct: 'ممتاز', partial: 'جيد', wrong: 'مراجعة' },
+
+  _readClass() { try { return localStorage.getItem(this._CLASS_KEY) || ''; } catch (e) { return ''; } },
+  _writeClass(v) { try { localStorage.setItem(this._CLASS_KEY, v); } catch (e) {} },
+
+  _esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  },
+
+  // جدول حرف × جولة. جولة قد تحمل أكثر من سؤال للحرف نفسه، فتُجمع.
+  _matrix() {
+    const rounds  = LESSON.assessmentRounds || [];
+    const letters = LESSON.letters || [];
+    const at = {};
+    letters.forEach((l, i) => { at[l.id] = i; });
+    const rows = letters.map(l => ({ char: l.char, name: l.name, cells: rounds.map(() => []) }));
+    rounds.forEach((rd, ri) => (rd.items || []).forEach((it, ii) => {
+      const mark = STATE.p7Scores[ri + '-' + ii];
+      const li = at[it.letterId];
+      if (mark && li !== undefined) rows[li].cells[ri].push(mark);
+    }));
+    return { rounds, rows };
+  },
+
+  _today() {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    return {
+      date: d.getFullYear() + '/' + p(d.getMonth() + 1) + '/' + p(d.getDate()),
+      time: p(d.getHours()) + ':' + p(d.getMinutes()),
+    };
+  },
+
+  _build() {
+    const { rounds, rows } = this._matrix();
+    const when = this._today();
+    const vals = Object.values(STATE.p7Scores);
+    const n = k => vals.filter(v => v === k).length;
+
+    const head = rounds.map(r => `<th>${this._esc(r.label || r.id)}</th>`).join('');
+    const body = rows.map(r => {
+      const cells = r.cells.map(marks => {
+        if (!marks.length) return `<td class="rp-none">—</td>`;
+        const txt = marks.map(m => this._TEXT[m] || m).join('، ');
+        return `<td class="rp-${this._esc(marks[0])}">${this._esc(txt)}</td>`;
+      }).join('');
+      return `<tr><th class="rp-letter"><span>${this._esc(r.char)}</span> ${this._esc(r.name)}</th>${cells}</tr>`;
+    }).join('');
+
+    const weak = rows.filter(r => r.cells.some(c => c.indexOf('wrong') !== -1))
+                     .map(r => r.char);
+
+    return `
+      <div class="report-sheet" role="dialog" aria-modal="true" aria-label="ورقة نتيجة الفصل">
+        <header class="rp-head">
+          <h1 class="rp-title">نتيجة الفصل</h1>
+          <dl class="rp-meta">
+            <div><dt>الدرس</dt><dd>${this._esc(LESSON.meta.title)} — ${this._esc(LESSON.meta.subtitle || '')}</dd></div>
+            <div><dt>الفصل</dt><dd><input id="rp-class" class="rp-class" type="text"
+                 placeholder="اكتب اسم الفصل" value="${this._esc(this._readClass())}" /></dd></div>
+            <div><dt>التاريخ</dt><dd>${when.date} — ${when.time}</dd></div>
+          </dl>
+        </header>
+
+        <table class="rp-table">
+          <thead><tr><th class="rp-corner">الحرف</th>${head}</tr></thead>
+          <tbody>${body}</tbody>
+        </table>
+
+        <div class="rp-totals">
+          <span class="rp-chip rp-correct">ممتاز ${n('correct')}</span>
+          <span class="rp-chip rp-partial">جيد ${n('partial')}</span>
+          <span class="rp-chip rp-wrong">مراجعة ${n('wrong')}</span>
+        </div>
+
+        ${!vals.length
+          ? `<p class="rp-note rp-empty"><strong>لم تُرصد أي استجابة في هذه الحصة</strong> — الورقة فارغة لأن التقييم لم يُستخدم.</p>`
+          : weak.length
+          ? `<p class="rp-note"><strong>يحتاج مراجعة في الحصة القادمة:</strong> ${weak.map(c => this._esc(c)).join('، ')}</p>`
+          : `<p class="rp-note rp-ok"><strong>لا شيء يحتاج مراجعة</strong> — الفصل أتقن حروف هذا الدرس.</p>`}
+
+        <p class="rp-sign">اللغة العربية للناطقين بغيرها</p>
+
+        <div class="rp-actions no-print">
+          <button class="rp-btn rp-btn-print" id="rp-print">🖨 طباعة / حفظ PDF</button>
+          <button class="rp-btn rp-btn-close" id="rp-close">إغلاق</button>
+        </div>
+      </div>`;
+  },
+
+  open() {
+    this.close();
+    const overlay = document.createElement('div');
+    overlay.className = 'report-overlay';
+    overlay.id = 'class-report';
+    overlay.innerHTML = this._build();
+    document.body.appendChild(overlay);
+    document.documentElement.classList.add('report-open');
+
+    const field = overlay.querySelector('#rp-class');
+    if (field) field.addEventListener('input', () => this._writeClass(field.value.trim()));
+
+    const guard = (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); this.close(); return; }
+      if (e.target && e.target.id === 'rp-class') return;   // الكتابة في اسم الفصل حرّة
+      e.stopPropagation();
+    };
+    overlay._guard = guard;
+    document.addEventListener('keydown', guard, true);
+
+    overlay.querySelector('#rp-print').addEventListener('click', () => window.print());
+    overlay.querySelector('#rp-close').addEventListener('click', () => this.close());
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) this.close(); });
+    if (field && !field.value) field.focus();
+  },
+
+  close() {
+    const old = document.getElementById('class-report');
+    if (!old) return;
+    if (old._guard) document.removeEventListener('keydown', old._guard, true);
+    old.remove();
+    document.documentElement.classList.remove('report-open');
+  },
+};
+
 // مؤشّر اكتمال الوسائط — نقطة صامتة في شريط المعلم.
 // سبب وجوده: عند فقد ملف صوت يلجأ AudioManager إلى النطق الآلي
 // بلا أي إشعار، فيظنّ المعلم أن تسجيله يعمل. وعند فقد فيديو

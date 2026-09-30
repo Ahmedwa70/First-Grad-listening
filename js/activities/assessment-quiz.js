@@ -254,6 +254,7 @@ function renderP7Summary() {
         </div>
         <div class="summary-actions">
           <button class="summary-btn summary-btn-success" onclick="showCompletionBanner()">🎓 عرض شهادة الإنجاز</button>
+          <button class="summary-btn summary-btn-secondary" onclick="ClassReport.open()">📄 ورقة النتيجة</button>
           <button class="summary-btn summary-btn-secondary" onclick="goToPhase(0)">↺ إعادة الدرس</button>
         </div>
       </div>
