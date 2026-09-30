@@ -61,11 +61,24 @@ function p7PlaySound(letterId, el) {
   }
 }
 
-function p7Score(key, val) {
+// مفتاح الرصد يُشتق وقت النقر لا وقت البناء.
+// السبب: أزرار الرصد تُبنى مرة واحدة عند دخول P7 ولا يُعاد بناؤها مع
+// كل سؤال، فمفتاحٌ محفور داخل onclick يتجمّد على السؤال الأول وتُدهس
+// الرصدات الاثنتا عشرة فوق بعضها في خانة واحدة.
+function p7Score(val) {
+  const key = `${STATE.p7RoundIndex}-${STATE.p7ItemIndex}`;
   STATE.p7Scores[key] = val;
-  document.querySelectorAll('.p7-score-btn').forEach(b => b.classList.remove('selected'));
-  const btn = document.querySelector(`.p7-score-btn[data-val="${val}"]`);
-  if (btn) btn.classList.add('selected');
+  p7SyncScoreRow();
+}
+
+// يعكس رصد السؤال الحالي على الأزرار — عند النقر وعند كل سؤال جديد.
+function p7SyncScoreRow() {
+  const row = document.querySelector('.p7-score-row');
+  if (!row) return;
+  const chosen = STATE.p7Scores[`${STATE.p7RoundIndex}-${STATE.p7ItemIndex}`];
+  row.classList.toggle('has-choice', !!chosen);
+  row.querySelectorAll('.p7-score-btn').forEach(b =>
+    b.classList.toggle('selected', chosen === b.dataset.val));
 }
 
 function p7PromptForRound(round) {
@@ -140,10 +153,10 @@ function p7BuildHTML(round, item) {
       <div class="p7-controls ${revealed}">
         <button class="p7-primary-btn p7-reveal-btn ${revealed ? 'hidden' : ''}" onclick="advanceP7()">كشف الإجابة <span class="p6-kbd">Space ␣</span></button>
         <button class="p7-primary-btn p7-next-btn ${revealed ? '' : 'hidden'}" onclick="advanceP7()">السؤال التالي ← <span class="p6-kbd">Space ␣</span></button>
-        <div class="p7-score-row ${revealed ? '' : 'hidden'}" aria-label="رصد استجابة الصف">
-          <button class="p7-score-btn correct ${STATE.p7Scores[scoreKey] === 'correct' ? 'selected' : ''}" data-val="correct" onclick="p7Score('${scoreKey}','correct')">✓ ممتاز</button>
-          <button class="p7-score-btn partial ${STATE.p7Scores[scoreKey] === 'partial' ? 'selected' : ''}" data-val="partial" onclick="p7Score('${scoreKey}','partial')">◎ جيد</button>
-          <button class="p7-score-btn wrong ${STATE.p7Scores[scoreKey] === 'wrong' ? 'selected' : ''}" data-val="wrong" onclick="p7Score('${scoreKey}','wrong')">✕ مراجعة</button>
+        <div class="p7-score-row ${revealed ? '' : 'hidden'} ${STATE.p7Scores[scoreKey] ? 'has-choice' : ''}" aria-label="رصد استجابة الصف">
+          <button class="p7-score-btn correct ${STATE.p7Scores[scoreKey] === 'correct' ? 'selected' : ''}" data-val="correct" onclick="p7Score('correct')">✓ ممتاز</button>
+          <button class="p7-score-btn partial ${STATE.p7Scores[scoreKey] === 'partial' ? 'selected' : ''}" data-val="partial" onclick="p7Score('partial')">◎ جيد</button>
+          <button class="p7-score-btn wrong ${STATE.p7Scores[scoreKey] === 'wrong' ? 'selected' : ''}" data-val="wrong" onclick="p7Score('wrong')">✕ مراجعة</button>
         </div>
       </div>
     </main>
@@ -169,7 +182,6 @@ function p7RenderInPlace() {
   const reveal = shell.querySelector('.p7-reveal-btn');
   const next = shell.querySelector('.p7-next-btn');
   const scoreRow = shell.querySelector('.p7-score-row');
-  const scoreKey = `${STATE.p7RoundIndex}-${STATE.p7ItemIndex}`;
   if (floatingPrompt) { floatingPrompt.innerHTML = p7BuildQuestionBanner(round, item, letter); }
   if (roundNav) roundNav.innerHTML = LESSON.phases.find(p => p.id === 'P7').roundOrder.map((rid, i) => { const r = LESSON.assessmentRounds.find(x => x.id === rid); return `<button class="p6-round-btn ${i === STATE.p7RoundIndex ? 'active' : ''}" onclick="p7GoRound(${i})">${r.label}</button>`; }).join('');
   if (card) { card.className = `p7-assessment-card ${STATE.p7AnswerVisible ? 'revealed' : ''}`; card.dataset.round = round.id; card.innerHTML = p7BuildCardContent(round, item, letter); }
@@ -177,7 +189,7 @@ function p7RenderInPlace() {
   if (controls) controls.classList.toggle('revealed', STATE.p7AnswerVisible);
   if (reveal) { reveal.classList.toggle('hidden', STATE.p7AnswerVisible); reveal.innerHTML = 'كشف الإجابة <span class="p6-kbd">Space ␣</span>'; }
   if (next) { next.classList.toggle('hidden', !STATE.p7AnswerVisible); next.innerHTML = 'السؤال التالي ← <span class="p6-kbd">Space ␣</span>'; }
-  if (scoreRow) { scoreRow.classList.toggle('hidden', !STATE.p7AnswerVisible); scoreRow.querySelectorAll('.p7-score-btn').forEach(btn => btn.classList.toggle('selected', STATE.p7Scores[scoreKey] === btn.dataset.val)); }
+  if (scoreRow) { scoreRow.classList.toggle('hidden', !STATE.p7AnswerVisible); p7SyncScoreRow(); }
   const teacher = shell.querySelector('.p7-teacher-bar span:last-child');
   if (teacher) teacher.textContent = round.instruction;
 }

@@ -5737,7 +5737,21 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 .p7-score-btn.correct { background: var(--th-success-bg); color: var(--th-success); border-color: rgba(30,132,73,0.45); }
 .p7-score-btn.partial { background: var(--th-warning-bg); color: var(--gold); border-color: var(--th-gold-border); }
 .p7-score-btn.wrong { background: var(--th-error-bg); color: var(--th-error); border-color: rgba(166,61,47,0.45); }
-.p7-score-btn:hover, .p7-score-btn.selected { opacity: 1; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+.p7-score-btn:hover { opacity: 1; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+/* المختار كان بنفس تنسيق :hover تماماً، فلم يكن للنقر أثر مرئي ما دامت
+   الفأرة فوق الزر. التمييز الآن بتعبئة مصمتة — بلا transform ولا هالة
+   خارجية، لأن الصف overflow:hidden فيقصّهما. */
+.p7-score-btn.selected {
+  opacity: 1;
+  font-weight: 800;
+  color: #fff;
+  border-color: transparent;
+}
+.p7-score-btn.correct.selected { background: var(--th-success); }
+.p7-score-btn.partial.selected { background: var(--gold); }
+.p7-score-btn.wrong.selected   { background: var(--th-error); }
+/* بقية الخيارات تخفت فور الاختيار — تأكيد ثانٍ لا يعتمد على اللون وحده. */
+.p7-score-row.has-choice .p7-score-btn:not(.selected) { opacity: 0.38; }
 .p7-teacher-bar {
   flex: 0 0 auto;
   align-self: center;
@@ -7812,6 +7826,17 @@ html.secondary-language-hidden .secondary-language {
   animation: resumeRise 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* النقر خارج البطاقة أو Escape لا يُغلقها — الاختيار مطلوب — لكنها
+   تنبض لتقول «أنا هنا» بدل أن تبدو الصفحة متجمّدة. */
+.resume-card.nudge { animation: resumeNudge 0.42s ease-in-out; }
+
+@keyframes resumeNudge {
+  0%, 100% { transform: none; }
+  20%      { transform: translateX(-7px); }
+  45%      { transform: translateX(6px); }
+  70%      { transform: translateX(-3px); }
+}
+
 @keyframes resumeRise {
   from { opacity: 0; transform: translateY(12px) scale(0.98); }
   to   { opacity: 1; transform: none; }
@@ -8077,9 +8102,11 @@ html.secondary-language-hidden .secondary-language {
 }
 
 .rp-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.4rem 1.2rem; margin: 0; }
-.rp-meta > div { display: flex; align-items: baseline; gap: 0.5rem; }
-.rp-meta dt { font-size: 0.78rem; font-weight: 700; color: #64748b; min-width: 3.2rem; }
-.rp-meta dd { margin: 0; font-weight: 700; color: #1e293b; }
+/* min-inline-size:0 على كل حلقة في السلسلة، وإلا فاض حقل اسم الفصل
+   خارج خانته واصطدم بخانة التاريخ. */
+.rp-meta > div { display: flex; align-items: baseline; gap: 0.5rem; min-inline-size: 0; }
+.rp-meta dt { font-size: 0.78rem; font-weight: 700; color: #64748b; flex: 0 0 auto; min-width: 3.2rem; }
+.rp-meta dd { margin: 0; font-weight: 700; color: #1e293b; flex: 1 1 auto; min-inline-size: 0; }
 
 .rp-class {
   font: inherit;
@@ -8089,8 +8116,8 @@ html.secondary-language-hidden .secondary-language {
   border: 1px dashed #94a3b8;
   border-radius: 5px;
   background: #f8fafc;
-  min-width: 9rem;
-  max-width: 100%;
+  inline-size: 100%;
+  min-inline-size: 0;
 }
 .rp-class:focus { outline: 2px solid #0E7C7B; outline-offset: 1px; border-style: solid; }
 .rp-class::placeholder { color: #94a3b8; font-weight: 400; }

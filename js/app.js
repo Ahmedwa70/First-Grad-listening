@@ -413,10 +413,23 @@ function showResumePrompt(saved) {
     }
   };
 
+  // البطاقة تحجب الصفحة عمداً حتى يُختار. ولأن الحجب بلا استجابة يبدو
+  // تعطّلاً، ينبّه النقرُ خارجها أو Escape بنبضة بدل الصمت — ولا يُغلقانها،
+  // فإغلاقها دون اختيار إما يُضيّع الموضع أو يستأنف بلا إذن.
+  const nudge = () => {
+    const card = overlay.querySelector('.resume-card');
+    if (!card) return;
+    card.classList.remove('nudge');
+    void card.offsetWidth;
+    card.classList.add('nudge');
+    const y = overlay.querySelector('#resume-yes');
+    if (y) y.focus();
+  };
+
   // حاجز لوحة المفاتيح: منع Space/← من تحريك الدرس خلف البطاقة.
   const guard = (e) => {
-    if (e.key === 'Enter')  { e.preventDefault(); e.stopPropagation(); pick(true);  return; }
-    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); pick(false); return; }
+    if (e.key === 'Enter')  { e.preventDefault(); e.stopPropagation(); pick(true); return; }
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); nudge();    return; }
     e.stopPropagation();
   };
 
@@ -426,6 +439,7 @@ function showResumePrompt(saved) {
   document.addEventListener('keydown', guard, true);
   overlay.querySelector('#resume-yes').addEventListener('click', () => pick(true));
   overlay.querySelector('#resume-no').addEventListener('click', () => pick(false));
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) nudge(); });
   const first = overlay.querySelector('#resume-yes');
   if (first) first.focus();
 }
