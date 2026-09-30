@@ -5706,6 +5706,13 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   justify-content: center;
   gap: 0.4rem;
   flex-wrap: nowrap;
+  /* overflow:hidden ضروري لحركة الظهور (max-width من 0 إلى 380px)، لكنه
+     يقصّ رأسياً أيضاً: الزر يملأ الصفّ تماماً (38px من 38px، بلا فراغ)،
+     فرفعة :hover المقدارُها بكسل واحد وظلّها يُقصّان في الأعلى.
+     الحشو يوسّع صندوق القصّ رأسياً، والهامش السالب يحيّد أثره على
+     التخطيط — فارتفاع شريط الأزرار وموضعه لا يتغيّران. */
+  padding-block: 6px;
+  margin-block: -6px;
   overflow: hidden;
   opacity: 1;
   max-width: 380px;
