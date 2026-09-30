@@ -7900,3 +7900,121 @@ html.secondary-language-hidden .secondary-language {
   .resume-actions { flex-direction: column; }
   .resume-btn { width: 100%; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   مؤشّر اكتمال الوسائط — نقطة صامتة في شريط المعلم.
+   الشريط معروض على شاشة الفصل، فلا نصّ ولا رقم ظاهر للطلاب:
+   نقطة 8px فقط، وتفصيلها عند المرور أو النقر — للمعلم وحده.
+   لا تظهر إطلاقاً ما دامت كل الملفات موجودة (hidden من app.js).
+   أسماء الأصناف جديدة بالكامل (media-*) فلا تتعارض مع قائم.
+   ═══════════════════════════════════════════════════════════ */
+.media-check {
+  --media-warn: #E08C34;
+  position: relative;
+}
+
+.media-check[hidden] { display: none; }
+
+/* مساحة النقر بحجم أزرار الشريط، والنقطة المرئية 8px فقط. */
+.media-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  cursor: pointer;
+  list-style: none;
+  border-radius: 5px;
+  transition: background var(--dur-fast);
+}
+
+.media-dot::-webkit-details-marker { display: none; }
+.media-dot::marker { content: ''; }
+
+.media-dot::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--media-warn);
+  box-shadow: 0 0 0 3px rgba(224, 140, 52, 0.18);
+  transition: box-shadow var(--dur-fast);
+}
+
+.media-dot:hover::after,
+.media-check[open] .media-dot::after {
+  box-shadow: 0 0 0 5px rgba(224, 140, 52, 0.26);
+}
+
+.media-dot:focus-visible { outline: 2px solid var(--media-warn); outline-offset: 2px; }
+
+/* اللوحة — نفس موضع وأسلوب لوحة مساعدة المعلم. */
+.media-panel {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  min-width: 230px;
+  width: max-content;
+  max-width: min(320px, calc(100vw - 2rem));
+  max-height: calc(100vh - 5rem);
+  overflow-y: auto;
+  padding: 0.7rem 0.9rem;
+  background: var(--bg-card);
+  border: 1px solid rgba(224, 140, 52, 0.35);
+  border-radius: 10px;
+  box-shadow: var(--th-shadow-lg);
+  direction: rtl;
+  text-align: right;
+  z-index: 40;
+}
+
+.media-panel-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--media-warn);
+  margin-bottom: 0.55rem;
+}
+
+.media-group + .media-group { margin-top: 0.75rem; }
+
+.media-group-head {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.media-group-dir {
+  font-size: 0.66rem;
+  color: var(--text-dim);
+  margin: 0.15rem 0 0.3rem;
+  direction: ltr;
+  text-align: right;
+  unicode-bidi: plaintext;
+}
+
+.media-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.media-list li {
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  direction: ltr;
+  text-align: right;
+  unicode-bidi: plaintext;
+}
+
+.media-panel-note {
+  margin-top: 0.7rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--th-border-subtle);
+  font-size: 0.68rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+}

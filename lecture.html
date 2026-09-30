@@ -47,6 +47,14 @@
 
       <!-- المنطقة اليسرى: مؤقت + أيقونات + لوحة مساعدة المعلم -->
       <div class="hud-controls">
+
+        <!-- مؤشّر اكتمال الوسائط — نقطة صامتة لا تظهر إلا عند نقص،
+             لأن الشريط معروض على الفصل. تُملأ من MediaCheck في app.js. -->
+        <details class="media-check" id="media-check" hidden>
+          <summary class="media-dot" id="media-dot" aria-label="حالة ملفات الوسائط"></summary>
+          <div class="media-panel" id="media-panel" role="region" aria-label="الملفات الناقصة"></div>
+        </details>
+
         <div class="phase-timer" id="phase-timer" title="وقت المرحلة / المتوقع"></div>
 
         <button class="hud-icon-btn" id="theme-toggle" onclick="toggleTheme()" title="الوضع النهاري" aria-label="تبديل إلى الوضع النهاري">

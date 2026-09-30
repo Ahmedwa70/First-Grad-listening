@@ -117,6 +117,128 @@ const LessonProgress = {
   },
 };
 
+// ══════════════════════════════════════════════════════════════
+// مؤشّر اكتمال الوسائط — نقطة صامتة في شريط المعلم.
+// سبب وجوده: عند فقد ملف صوت يلجأ AudioManager إلى النطق الآلي
+// بلا أي إشعار، فيظنّ المعلم أن تسجيله يعمل. وعند فقد فيديو
+// يظهر إطار أسود صامت. النقطة تكشف الحالتين قبل الحصة.
+// لا تظهر إطلاقاً ما دام كل شيء موجوداً — شاشة الفصل تبقى نظيفة.
+// ══════════════════════════════════════════════════════════════
+const MediaCheck = {
+  _TIMEOUT: 5000,
+  _AUDIO_FORMS: ['صوت واحد', 'صوتان', 'أصوات', 'صوتاً'],
+  _VIDEO_FORMS: ['مقطع واحد', 'مقطعان', 'مقاطع', 'مقطعاً'],
+
+  // جمع المراجع بمسح بنية الدرس كاملة، لا بأسماء أقسام ثابتة —
+  // فأي درس جديد يُفحص تلقائياً مهما تغيّر موضع الحقل.
+  _collect() {
+    const audio = [], video = [], seen = new Set();
+    const walk = (node, depth) => {
+      if (!node || typeof node !== 'object' || depth > 8 || seen.has(node)) return;
+      seen.add(node);
+      if (Array.isArray(node)) { node.forEach(n => walk(n, depth + 1)); return; }
+      Object.keys(node).forEach(k => {
+        const v = node[k];
+        if (typeof v === 'string' && v) {
+          if (k === 'audioFile' && audio.indexOf(v) === -1) audio.push(v);
+          else if (k === 'videoFile' && video.indexOf(v) === -1) video.push(v);
+        } else if (v && typeof v === 'object') walk(v, depth + 1);
+      });
+    };
+    try { walk(LESSON, 0); } catch (e) {}
+    return { audio, video };
+  },
+
+  // يقرأ ترويسة الملف فقط (preload=metadata) — لا تشغيل ولا صوت ولا صورة.
+  // عند انتهاء المهلة يُفترض الوجود: إنذار كاذب أسوأ من صمت.
+  _probe(src, tag) {
+    return new Promise(resolve => {
+      let settled = false;
+      const el = document.createElement(tag);
+      const finish = (ok) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        el.onloadedmetadata = el.onerror = null;
+        try { el.removeAttribute('src'); el.load(); } catch (e) {}
+        resolve(ok);
+      };
+      const timer = setTimeout(() => finish(true), this._TIMEOUT);
+      el.preload = 'metadata';
+      el.muted = true;
+      el.onloadedmetadata = () => finish(true);
+      el.onerror = () => finish(false);
+      try { el.src = src; } catch (e) { finish(true); }
+    });
+  },
+
+  _plural(n, forms) {
+    if (n === 1) return forms[0];
+    if (n === 2) return forms[1];
+    return n + ' ' + (n <= 10 ? forms[2] : forms[3]);
+  },
+
+  _esc(s) {
+    return String(s).replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  },
+
+  _group(icon, label, forms, paths) {
+    if (!paths.length) return '';
+    const dir = paths[0].slice(0, paths[0].lastIndexOf('/') + 1);
+    const items = paths.map(p => `<li>${this._esc(p.slice(p.lastIndexOf('/') + 1))}</li>`).join('');
+    return `
+      <div class="media-group">
+        <div class="media-group-head">${icon} ${label} — ${paths.length}</div>
+        <div class="media-group-dir">${this._esc(dir)}</div>
+        <ul class="media-list">${items}</ul>
+      </div>`;
+  },
+
+  _render(missAudio, missVideo) {
+    const host  = document.getElementById('media-check');
+    const dot   = document.getElementById('media-dot');
+    const panel = document.getElementById('media-panel');
+    if (!host || !dot || !panel) return;
+
+    if (!missAudio.length && !missVideo.length) { host.open = false; host.hidden = true; return; }
+
+    const bits = [];
+    if (missAudio.length) bits.push(this._plural(missAudio.length, this._AUDIO_FORMS));
+    if (missVideo.length) bits.push(this._plural(missVideo.length, this._VIDEO_FORMS));
+    const summary = 'ينقص ' + bits.join(' · ');
+
+    dot.setAttribute('title', summary);
+    dot.setAttribute('aria-label', summary);
+    panel.innerHTML =
+      `<div class="media-panel-title">ينقص من هذا الدرس</div>` +
+      this._group('🔊', 'الصوت', this._AUDIO_FORMS, missAudio) +
+      this._group('🎬', 'الفيديو', this._VIDEO_FORMS, missVideo) +
+      `<div class="media-panel-note">ضع الملف باسمه في مجلده وأعد فتح الدرس.</div>`;
+    host.hidden = false;
+  },
+
+  async run() {
+    const { audio, video } = this._collect();
+    const aPaths = audio.map(f => _resolveAudioPath(f));
+    const vPaths = video.map(f => _resolveVideoPath(f));
+    const [aOk, vOk] = await Promise.all([
+      Promise.all(aPaths.map(s => this._probe(s, 'audio'))),
+      Promise.all(vPaths.map(s => this._probe(s, 'video'))),
+    ]);
+    this._render(aPaths.filter((s, i) => !aOk[i]), vPaths.filter((s, i) => !vOk[i]));
+  },
+
+  start() {
+    // إغلاق اللوحة عند النقر خارجها — نفس سلوك لوحة مساعدة المعلم.
+    document.addEventListener('click', (e) => {
+      const host = document.getElementById('media-check');
+      if (host && host.open && !host.contains(e.target)) host.open = false;
+    });
+    this.run();
+  },
+};
+
 // بطاقة الاستئناف — تظهر فوق المرحلة الأولى عند وجود موضع محفوظ.
 function showResumePrompt(saved) {
   const i = saved.currentPhaseIndex;
@@ -890,6 +1012,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const _savedProgress = LessonProgress.load();
   if (_savedProgress) showResumePrompt(_savedProgress); else goToPhase(0);
   LessonProgress.start();
+  MediaCheck.start();
 
   // Click-Outside Listener لإغلاق لوحة مساعدة المعلم
   // ─────────────────────────────────────────────────
