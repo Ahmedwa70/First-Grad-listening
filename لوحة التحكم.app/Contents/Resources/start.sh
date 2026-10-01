@@ -14,11 +14,11 @@ PORT=8765
 
 APP_BUNDLE="$(cd "$(dirname "$0")/../.." && pwd)"   # …/لوحة التحكم.app
 PROJECT="$(dirname "$APP_BUNDLE")"                   # …/MVP
-# اسم صفحة اللوحة: index.html هو الحالي (وهو صفحة GitHub Pages
-# الرئيسية)، وdashboard.html اسم سابق يُقبل أيضاً فلا ينكسر
-# المشغّل إن فُتح به مجلد بنسخة قديمة.
-if   [ -f "$PROJECT/index.html" ];     then PAGE="index.html"
-elif [ -f "$PROJECT/dashboard.html" ]; then PAGE="dashboard.html"
+# هذا المشغّل يفتح لوحة التحكم، فيقدّم dashboard.html دائماً.
+# index.html هي صفحة الدروس التي يراها الزائر — ليست وجهة هذا المشغّل،
+# وتبقى ملاذاً فقط إن غابت اللوحة لسبب ما.
+if   [ -f "$PROJECT/dashboard.html" ]; then PAGE="dashboard.html"
+elif [ -f "$PROJECT/index.html" ];     then PAGE="index.html"
 else PAGE=""
 fi
 URL="http://localhost:$PORT/$PAGE"

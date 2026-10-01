@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة التحكم — دروس الاستماع</title>
+  <meta name="description" content="حالة اكتمال دروس الاستماع — نظام التدريس التفاعلي" />
+
+  <!-- الوضع الليلي/النهاري مشترك مع المحاضرات: نفس المفتاح، نفس السلوك. -->
+  <script>try{var t=localStorage.getItem('lesson-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+
+  <!-- style.css هو مصدر الهوية: الخطوط ورموز الألوان والوضعان.
+       لوحة التحكم تستهلكها ولا تعيد تعريفها، فتبقى الواجهتان مشروعاً واحداً. -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+
+<body class="dash-body">
+
+  <header class="dash-header">
+    <div class="dash-header-inner">
+
+      <div class="dash-identity">
+        <h1 class="dash-title">لوحة التحكم</h1>
+        <p class="dash-subtitle">دروس الاستماع — اللغة العربية للناطقين بغيرها</p>
+      </div>
+
+      <div class="dash-header-actions">
+        <button class="dash-icon-btn" id="dash-refresh" title="إعادة الفحص" aria-label="إعادة الفحص">↻</button>
+        <button class="dash-icon-btn" id="dash-theme" title="تبديل الوضع" aria-label="تبديل الوضع">☾</button>
+      </div>
+
+    </div>
+    <div class="dash-ornament" aria-hidden="true"><span>❁</span><span>✿</span><span>❁</span></div>
+  </header>
+
+  <main class="dash-main">
+
+    <!-- شريط التقدّم أثناء الفحص -->
+    <section class="dash-scanning" id="dash-scanning" aria-live="polite">
+      <div class="dash-scan-label">جارٍ فحص الدروس…</div>
+      <div class="dash-scan-track"><div class="dash-scan-fill" id="dash-scan-fill"></div></div>
+      <div class="dash-scan-note" id="dash-scan-note">يُقرأ كل درس على حدة ثم تُفحص ملفاته</div>
+    </section>
+
+    <!-- حالة الربط بمجلد المشروع -->
+    <section class="dash-connect" id="dash-connect" data-state="manual" aria-live="polite"></section>
+
+    <!-- الخلاصة -->
+    <section class="dash-summary" id="dash-summary" hidden aria-label="الخلاصة">
+      <article class="dash-stat" data-tone="lessons">
+        <span class="dash-stat-label">الدروس المبنية</span>
+        <span class="dash-stat-value" id="stat-lessons">—</span>
+        <span class="dash-stat-meta" id="stat-lessons-meta"></span>
+      </article>
+      <article class="dash-stat" data-tone="complete">
+        <span class="dash-stat-label">دروس مكتملة الوسائط</span>
+        <span class="dash-stat-value" id="stat-complete">—</span>
+        <span class="dash-stat-meta" id="stat-complete-meta"></span>
+      </article>
+      <article class="dash-stat" data-tone="audio">
+        <span class="dash-stat-label">الملفات الصوتية</span>
+        <span class="dash-stat-value" id="stat-audio">—</span>
+        <span class="dash-stat-meta" id="stat-audio-meta"></span>
+      </article>
+      <article class="dash-stat" data-tone="video">
+        <span class="dash-stat-label">مقاطع الفيديو</span>
+        <span class="dash-stat-value" id="stat-video">—</span>
+        <span class="dash-stat-meta" id="stat-video-meta"></span>
+      </article>
+    </section>
+
+    <!-- المرشّحات -->
+    <nav class="dash-filters" id="dash-filters" hidden aria-label="تصفية الدروس">
+      <button class="dash-filter is-active" data-filter="all">الكل</button>
+      <button class="dash-filter" data-filter="incomplete">ناقصة</button>
+      <button class="dash-filter" data-filter="complete">مكتملة</button>
+      <button class="dash-filter" data-filter="unbuilt">لم تُبنَ</button>
+    </nav>
+
+    <!-- الشبكة -->
+    <section class="dash-grid" id="dash-grid" aria-label="الدروس"></section>
+
+    <!-- حالة تعذّر القراءة -->
+    <section class="dash-blocked" id="dash-blocked" hidden>
+      <div class="dash-blocked-icon" aria-hidden="true">⚠</div>
+      <h2>تعذّر قراءة بيانات الدروس</h2>
+      <p>منع المتصفح لوحة التحكم من قراءة ملفات الدروس بهذه الطريقة في الفتح.</p>
+      <p class="dash-blocked-hint">افتح المشروع عبر خادم محلي، أو استخدم Brave أو Chrome بدل Safari.</p>
+    </section>
+
+  </main>
+
+  <footer class="dash-footer">
+    <span class="dash-footer-ornament" aria-hidden="true">❁✿❁</span>
+    <span id="dash-footer-note">نظام التدريس التفاعلي</span>
+  </footer>
+
+  <script src="js/dash-store.js"></script>
+  <script src="js/dash-upload.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
