@@ -14,16 +14,23 @@ PORT=8765
 
 APP_BUNDLE="$(cd "$(dirname "$0")/../.." && pwd)"   # …/لوحة التحكم.app
 PROJECT="$(dirname "$APP_BUNDLE")"                   # …/MVP
-URL="http://localhost:$PORT/dashboard.html"
+# اسم صفحة اللوحة: index.html هو الحالي (وهو صفحة GitHub Pages
+# الرئيسية)، وdashboard.html اسم سابق يُقبل أيضاً فلا ينكسر
+# المشغّل إن فُتح به مجلد بنسخة قديمة.
+if   [ -f "$PROJECT/index.html" ];     then PAGE="index.html"
+elif [ -f "$PROJECT/dashboard.html" ]; then PAGE="dashboard.html"
+else PAGE=""
+fi
+URL="http://localhost:$PORT/$PAGE"
 
-if [ ! -f "$PROJECT/dashboard.html" ]; then
-  echo "لم يُعثر على dashboard.html بجوار التطبيق.
+if [ -z "$PAGE" ]; then
+  echo "لم يُعثر على صفحة لوحة التحكم بجوار التطبيق.
 ضع هذا التطبيق داخل مجلد المشروع، بجانب lecture.html."
   exit 0
 fi
 
 # خادم يعمل أصلاً على هذا المنفذ؟ نكتفي به.
-if curl -s -m 1 -o /dev/null "http://127.0.0.1:$PORT/dashboard.html"; then
+if curl -s -m 1 -o /dev/null "http://127.0.0.1:$PORT/$PAGE"; then
   echo "OK $URL"
   exit 0
 fi
@@ -48,7 +55,7 @@ fi
 
 # ننتظر استجابته — عشر ثوانٍ على الأكثر.
 for _ in $(seq 1 40); do
-  if curl -s -m 1 -o /dev/null "http://127.0.0.1:$PORT/dashboard.html"; then
+  if curl -s -m 1 -o /dev/null "http://127.0.0.1:$PORT/$PAGE"; then
     echo "OK $URL"
     exit 0
   fi
