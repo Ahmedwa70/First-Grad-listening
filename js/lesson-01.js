@@ -22,18 +22,18 @@ const LESSON = {
   meta: {
     id:       'lesson-01',
     number:   1,
-    title:    'الحروف الأولى',
+    title:    'الدرس الأول',
     subtitle: 'ب  ت  ث  ن',
-    summaryTitle: 'انتهت المحاضرة الأولى',
-    welcomeHintAr: '🎓 المحاضرة الأولى',
+    summaryTitle: 'اكتمل الدرس الأول',
+    welcomeHintAr: '🎓 الدرس الأول',
     welcomeHintZh: '第一课',
     level:    'A0',
     duration: 120,
     targetLetters: ['ب', 'ت', 'ث', 'ن'],
-    description: 'المحاضرة الأولى — الحروف: ب ت ث ن — نظام التدريس التفاعلي',
-    docTitle: 'المحاضرة الأولى — ب ت ث ن',
+    description: 'الدرس الأول — الحروف: ب ت ث ن — حروف العربية',
+    docTitle: 'الدرس الأول — ب ت ث ن',
     completion: {
-      title: 'المحاضرة الأولى مكتملة',
+      title: 'الدرس الأول مكتمل',
       chars: [
         { id: 'ba',  char: 'ب' },
         { id: 'ta',  char: 'ت' },
@@ -455,7 +455,7 @@ const LESSON = {
           id:      'P1-S2',
           label:   'الخطوة ٢',
           content: 'universe',
-          hint:    '🎓 المحاضرة الأولى · 第一课',
+          hint:    '🎓 الدرس الأول · 第一课',
         },
         {
           id:      'P1-S3',

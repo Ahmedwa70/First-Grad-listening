@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>الحروف الأولى — اللغة العربية للناطقين بغيرها</title>
-  <meta name="description" content="دروس تفاعلية في حروف العربية — للناطقين بغيرها" />
+  <title>حروف العربية — فصحاء</title>
+  <meta name="description" content="حروف العربية للناطقين بغيرها — دروس تفاعلية: صوت الحرف ورسمه وموضعه في الكلمة" />
 
   <!-- الوضع الليلي/النهاري مشترك مع المحاضرات ولوحة التحكم: نفس المفتاح. -->
   <script>try{var t=localStorage.getItem('lesson-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -35,11 +35,22 @@
   </button>
 
   <header class="wel-hero">
-    <p class="wel-eyebrow">نظام التدريس التفاعلي</p>
-    <h1 class="wel-title">الحروف الأولى</h1>
-    <p class="wel-sub">اللغة العربية للناطقين بغيرها</p>
+    <p class="wel-eyebrow">فصحاء</p>
+    <h1 class="wel-title">حروف العربية</h1>
+    <p class="wel-sub">للناطقين بغيرها</p>
+
     <div class="wel-ornament" aria-hidden="true"><span>❁</span><span>✿</span><span>❁</span></div>
-    <p class="wel-lede">اختر درساً لتبدأ. كل درس سبع مراحل: من صوت الحرف إلى رسمه إلى موضعه في الكلمة.</p>
+
+    <p class="wel-lede">
+      كل درس سبع مراحل: يسمع الطالب الحرف، ثم يراه، ثم يتتبّع رسمه،
+      ثم يجده في الكلمة. وما بعد الحروف حركاتها وما يلحقها.
+    </p>
+
+    <dl class="wel-stats" id="wel-stats" hidden>
+      <div><dt>دروس جاهزة</dt><dd id="stat-lessons">—</dd></div>
+      <div><dt>حروف مغطّاة</dt><dd id="stat-letters">—</dd></div>
+      <div><dt>مراحل في كل درس</dt><dd>٧</dd></div>
+    </dl>
   </header>
 
   <main class="wel-main">
@@ -50,6 +61,18 @@
     </section>
 
     <section class="wel-grid" id="wel-grid" aria-label="الدروس"></section>
+
+    <!-- ما بعد المبنيّ — بطاقة واحدة صادقة بلا أرقام مخمَّنة -->
+    <section class="wel-next" id="wel-next" hidden aria-label="قيد الإعداد">
+      <span class="wn-badge" aria-hidden="true">◷</span>
+      <div class="wn-body">
+        <h2 class="wn-title">دروس أخرى قيد الإعداد</h2>
+        <ul class="wn-topics">
+          <li>ل</li><li>الحركات</li><li>الشدة</li><li>التنوين</li>
+          <li>اللام الشمسية والقمرية</li><li>المدود</li><li>الكتابة المتصلة</li>
+        </ul>
+      </div>
+    </section>
 
     <section class="wel-empty" id="wel-empty" hidden>
       <p>تعذّر تحميل قائمة الدروس.</p>

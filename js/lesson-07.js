@@ -29,18 +29,18 @@ const LESSON = {
   meta: {
     id:       'lesson-07',
     number:   7,
-    title:    'الحروف السابعة',
+    title:    'الدرس السابع',
     subtitle: 'غ  ض  ر  ز',
-    summaryTitle: 'انتهت المحاضرة السابعة',
-    welcomeHintAr: '🎓 المحاضرة السابعة',
+    summaryTitle: 'اكتمل الدرس السابع',
+    welcomeHintAr: '🎓 الدرس السابع',
     welcomeHintZh: '第七课',
     level:    'A0',
     duration: 120,
     targetLetters: ['غ', 'ض', 'ر', 'ز'],
-    description: 'المحاضرة السابعة — الحروف: غ ض ر ز — نظام التدريس التفاعلي',
-    docTitle: 'المحاضرة السابعة — غ ض ر ز',
+    description: 'الدرس السابع — الحروف: غ ض ر ز — حروف العربية',
+    docTitle: 'الدرس السابع — غ ض ر ز',
     completion: {
-      title: 'المحاضرة السابعة مكتملة',
+      title: 'الدرس السابع مكتمل',
       chars: [
         { id: 'ghayn', char: 'غ' },
         { id: 'dad',   char: 'ض' },
@@ -448,7 +448,7 @@ const LESSON = {
           id:      'P1-S2',
           label:   'الخطوة ٢',
           content: 'universe',
-          hint:    '🎓 المحاضرة السابعة · 第七课',
+          hint:    '🎓 الدرس السابع · 第七课',
         },
         {
           id:      'P1-S3',

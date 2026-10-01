@@ -25,18 +25,18 @@ const LESSON = {
   meta: {
     id:       'lesson-04',
     number:   4,
-    title:    'الحروف الرابعة',
+    title:    'الدرس الرابع',
     subtitle: 'د  ذ  ط  ظ',
-    summaryTitle: 'انتهت المحاضرة الرابعة',
-    welcomeHintAr: '🎓 المحاضرة الرابعة',
+    summaryTitle: 'اكتمل الدرس الرابع',
+    welcomeHintAr: '🎓 الدرس الرابع',
     welcomeHintZh: '第四课',
     level:    'A0',
     duration: 120,
     targetLetters: ['د', 'ذ', 'ط', 'ظ'],
-    description: 'المحاضرة الرابعة — الحروف: د ذ ط ظ — نظام التدريس التفاعلي',
-    docTitle: 'المحاضرة الرابعة — د ذ ط ظ',
+    description: 'الدرس الرابع — الحروف: د ذ ط ظ — حروف العربية',
+    docTitle: 'الدرس الرابع — د ذ ط ظ',
     completion: {
-      title: 'المحاضرة الرابعة مكتملة',
+      title: 'الدرس الرابع مكتمل',
       chars: [
         { id: 'dal',  char: 'د' },
         { id: 'dhal', char: 'ذ' },
@@ -493,7 +493,7 @@ const LESSON = {
           id:      'P1-S2',
           label:   'الخطوة ٢',
           content: 'universe',
-          hint:    '🎓 المحاضرة الرابعة · 第四课',
+          hint:    '🎓 الدرس الرابع · 第四课',
         },
         {
           id:      'P1-S3',

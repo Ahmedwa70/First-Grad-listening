@@ -23,18 +23,18 @@ const LESSON = {
   meta: {
     id:       'lesson-02',
     number:   2,
-    title:    'الحروف الثانية',
+    title:    'الدرس الثاني',
     subtitle: 'ج  ح  خ  ع',
-    summaryTitle: 'انتهت المحاضرة الثانية',
-    welcomeHintAr: '🎓 المحاضرة الثانية',
+    summaryTitle: 'اكتمل الدرس الثاني',
+    welcomeHintAr: '🎓 الدرس الثاني',
     welcomeHintZh: '第二课',
     level:    'A0',
     duration: 120,
     targetLetters: ['ج', 'ح', 'خ', 'ع'],
-    description: 'المحاضرة الثانية — الحروف: ج ح خ ع — نظام التدريس التفاعلي',
-    docTitle: 'المحاضرة الثانية — ج ح خ ع',
+    description: 'الدرس الثاني — الحروف: ج ح خ ع — حروف العربية',
+    docTitle: 'الدرس الثاني — ج ح خ ع',
     completion: {
-      title: 'المحاضرة الثانية مكتملة',
+      title: 'الدرس الثاني مكتمل',
       chars: [
         { id: 'jeem',  char: 'ج' },
         { id: 'haa',   char: 'ح' },
@@ -450,7 +450,7 @@ const LESSON = {
           id:      'P1-S2',
           label:   'الخطوة ٢',
           content: 'universe',
-          hint:    '🎓 المحاضرة الثانية · 第二课',
+          hint:    '🎓 الدرس الثاني · 第二课',
         },
         {
           id:      'P1-S3',
