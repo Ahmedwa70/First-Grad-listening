@@ -218,6 +218,21 @@ function p6AssertGlyphFits() {
       'راجع التعليق فوق القاعدة في css/style.css.'
     );
   }
+
+  // الثابت الثاني: البطاقة تسع محتواها كاملاً.
+  // البطاقة overflow:hidden، فإن كبر الحرف أكثر مما يحتمل الارتفاع
+  // اختفى الشرح أسفلها بصمت — لا شريط تمرير ولا أثر. يقع هذا على
+  // الشاشات القصيرة وحدها، وهي التي لا نراها على جهاز التطوير.
+  const zone = el.closest('.p6-answer-d1');
+  if (zone && zone.scrollHeight > zone.clientHeight + 1) {
+    const over = zone.scrollHeight - zone.clientHeight;
+    console.warn(
+      `⚠️ ثابت P6 مكسور: بطاقة «تعرّف على الحرف» تقصّ ${over}px من محتواها ` +
+      `(الشاشة ${window.innerHeight}px، حجم الحرف ${getComputedStyle(el).fontSize}). ` +
+      'الاسم أو الشرح أسفل الحرف مخفيّ الآن. ' +
+      'صغّر ‎--p6-glyph-size‎ في النطاق المناسب — راجع التعليق فوق ‎.p6-answer-d1‎ في css/style.css.'
+    );
+  }
 }
 
 function p6PlaySound(letterId, el) {

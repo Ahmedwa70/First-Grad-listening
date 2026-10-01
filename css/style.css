@@ -3634,6 +3634,21 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 
 /* ─── D1 Identify: بطاقة مركزية بأربع حالات كشف ──────── */
 .p6-answer-d1 {
+  /* ══════════════════════════════════════════════════════════
+     حجم حرف P6 — مصدر واحد لا ثاني له.
+     كان مكتوباً في ثلاثة مواضع (الأساس واستعلامَي الشاشة) فتباعدت
+     القيم. استعلامات الشاشة تُغيّر هذا الرمز وحده لا قاعدة الحرف.
+     الحرف بطل هذا التدريب: الطالب يسمع ثم يرى، والرؤية هي التأكيد.
+
+     لماذا calc لا vh مجرّدة؟ الصندوق لا ينمو بنسبة الشاشة: أشرطة
+     المحاضرة (التبويبات والنقاط وزر التالي وشريط المعلم) تأخذ
+     ارتفاعاً شبه ثابت، فما يبقى للصندوق = نسبة من الشاشة ناقص ذلك
+     الثابت. قِيس الحدّ الأقصى الذي يسع الحرف دون قصّ الاسم والشرح
+     على 800 و900 و1080 بكسل، فخرج خط الاحتواء: نحو 0.37 من ارتفاع
+     الشاشة ناقص 182 بكسل. المكتوب هنا أدنى منه بهامش أمان.
+     يحرسه p6AssertGlyphFits — ينبّه إن فاض المحتوى.
+     ══════════════════════════════════════════════════════════ */
+  --p6-glyph-size: clamp(5rem, calc(34vh - 160px), 11rem);
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: center;
@@ -3652,16 +3667,19 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
    ما يحتمل حروفاً قادمة أعمق واختلاف إصدارات الخط.
    يحرسه p6AssertGlyphFits في auditory-discrimination.js. */
 .p6-answer-d1 .p6-answer-char {
-  font-size: clamp(5.5rem, 12vh, 7rem);
+  font-size: var(--p6-glyph-size);
   line-height: 1.35;
   font-weight: 900;
-  margin-bottom: 0.5rem;
+  /* الفراغ حول البطل يصنع سيطرته لا حجمه وحده */
+  margin-bottom: clamp(0.5rem, 1.4vh, 1rem);
   flex-shrink: 0;
+  /* هالة خفيفة بلون الحرف نفسه — تفصله عن الخلفية بلا إطار */
+  text-shadow: 0 0 clamp(1.5rem, 4vh, 3rem) color-mix(in srgb, currentColor 26%, transparent);
 }
 .p6-answer-d1 .p6-answer-name {
-  font-size: clamp(1.3rem, 2.5vw, 1.65rem);
+  font-size: clamp(0.92rem, 1.6vw, 1.08rem);
   font-weight: 700;
-  padding: 0.45rem 1.8rem;
+  padding: 0.3rem 1rem;
   background: rgba(255,255,255,0.1);
   border-radius: 999px;
   border: 1px solid rgba(255,255,255,0.15);
@@ -6199,7 +6217,8 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   .p6-big-play { height: clamp(3.5rem, 7vh, 5.5rem); }
   .p6-answer-zone { min-height: clamp(130px, 20vh, 180px); }
   .p6-answer-d1 { gap: clamp(0.2rem, 0.6vh, 0.6rem); padding: clamp(0.4rem, 1vh, 1.5rem) clamp(0.8rem, 2vw, 1.5rem); }
-  .p6-answer-d1 .p6-answer-char { font-size: clamp(4rem, 10vh, 6rem); margin-bottom: 0.2rem; }
+  .p6-answer-d1 { --p6-glyph-size: clamp(4rem, calc(36vh - 180px), 8.5rem); }
+  .p6-answer-d1 .p6-answer-char { margin-bottom: 0.3rem; }
   .p6-finger-chips { margin-top: clamp(0.2rem, 0.5vh, 0.5rem); padding-top: clamp(0.3rem, 0.6vh, 0.6rem); }
   .p6-teacher-bar { padding: 0.35rem 0.8rem; }
   .p6-d3-reveal-card,
@@ -6236,7 +6255,7 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   .p6-big-play { height: clamp(3rem, 6vh, 4.5rem); font-size: clamp(1rem, 1.8vw, 1.3rem); }
   .p6-big-play::before { font-size: clamp(1.1rem, 2.5vh, 1.5rem); }
   .p6-answer-zone { min-height: clamp(110px, 18vh, 160px); }
-  .p6-answer-d1 .p6-answer-char { font-size: clamp(3.5rem, 8vh, 5rem); }
+  .p6-answer-d1 { --p6-glyph-size: clamp(3.5rem, calc(58vh - 345px), 7rem); }
   .p6-play-pill { flex: 0 0 44px; width: 44px; height: 44px; min-height: 44px; }
   .p6-cmp-play { flex: 0 0 46px; width: 46px; height: 46px; min-height: 46px; }
   .p6-d3-reveal-card,
