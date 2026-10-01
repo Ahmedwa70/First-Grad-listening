@@ -22,67 +22,85 @@
     var(--bg-main);
 }
 
-/* ── الترويسة ───────────────────────────────────────────────── */
+/* ── الترويسة ───────────────────────────────────────────────
+   شريط مضغوط: سطر علويّ للمنصّة ومبدّل الوضع، ثم صفّ يضع الاسم
+   يميناً والأرقام يساراً. الفراغ الأفقي مستغَلّ بدل أن تُدفع
+   البطاقات أسفل الشاشة.
+   ─────────────────────────────────────────────────────────── */
 .wel-hero {
-  text-align: center;
-  padding-inline: var(--wel-gutter);
-  padding-block: clamp(2.5rem, 8vh, 5rem) clamp(1.5rem, 4vh, 2.5rem);
-  max-inline-size: 56rem;
+  max-inline-size: 72rem;
   margin-inline: auto;
+  padding-inline: var(--wel-gutter);
+  padding-block: clamp(0.85rem, 2vh, 1.25rem) clamp(1rem, 2.5vh, 1.6rem);
+}
+
+.wel-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-block-end: clamp(0.8rem, 2vh, 1.3rem);
 }
 
 .wel-eyebrow {
-  margin: 0 0 0.6rem;
-  font-size: clamp(0.7rem, 1.1vw, 0.84rem);
+  margin: 0;
+  font-size: clamp(0.72rem, 1.1vw, 0.86rem);
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   color: var(--text-dim);
 }
 
+.wel-band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(1.2rem, 4vw, 3rem);
+  flex-wrap: wrap;
+  padding-block-end: clamp(0.8rem, 2vh, 1.2rem);
+  border-block-end: 1px solid var(--th-border-subtle);
+}
+
+.wel-identity { min-inline-size: 0; flex: 1 1 22rem; }
+
 .wel-title {
   margin: 0;
-  font-size: clamp(2.2rem, 6vw, 4.2rem);
+  font-size: clamp(1.9rem, 4.2vw, 3rem);
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.12;
   letter-spacing: -0.015em;
   color: var(--text-primary);
 }
 
 .wel-sub {
-  margin: 0.5rem 0 0;
-  font-size: clamp(0.95rem, 1.7vw, 1.25rem);
-  color: var(--text-gold);
+  margin: 0.25rem 0 0;
+  font-size: clamp(0.88rem, 1.4vw, 1.05rem);
   font-weight: 700;
+  color: var(--text-gold);
 }
-
-.wel-ornament {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-block: clamp(1.1rem, 3vh, 1.8rem);
-  color: var(--gold);
-  font-size: 0.72rem;
-  opacity: 0.55;
-}
-.wel-ornament::before,
-.wel-ornament::after {
-  content: '';
-  flex: 1 1 auto;
-  max-inline-size: min(26vw, 13rem);
-  block-size: 1px;
-  background: linear-gradient(to left, transparent, var(--wel-gold-line));
-}
-.wel-ornament::after { background: linear-gradient(to right, transparent, var(--wel-gold-line)); }
-.wel-ornament span:nth-child(2) { font-size: 0.9rem; opacity: 0.9; }
 
 .wel-lede {
-  margin: 0;
-  font-size: clamp(0.88rem, 1.4vw, 1.05rem);
-  line-height: 1.9;
+  margin: 0.55rem 0 0;
+  font-size: clamp(0.82rem, 1.2vw, 0.95rem);
+  line-height: 1.75;
   color: var(--text-secondary);
-  max-inline-size: 42rem;
-  margin-inline: auto;
+  max-inline-size: 40rem;
+}
+
+/* الأرقام تُحسب مما قُرئ، ولا تُكتب يدوياً */
+.wel-stats {
+  display: flex;
+  flex: 0 0 auto;
+  gap: clamp(1rem, 2.5vw, 2.1rem);
+  margin: 0;
+}
+.wel-stats > div { display: flex; flex-direction: column-reverse; align-items: center; gap: 0.08rem; }
+.wel-stats dt { font-size: 0.68rem; font-weight: 700; color: var(--text-dim); white-space: nowrap; }
+.wel-stats dd {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text-gold);
 }
 
 /* ── الجسم ──────────────────────────────────────────────────── */
@@ -90,7 +108,7 @@
   max-inline-size: 72rem;
   margin-inline: auto;
   padding-inline: var(--wel-gutter);
-  padding-block-end: clamp(2.5rem, 6vh, 4rem);
+  padding-block: clamp(1rem, 2.5vh, 1.6rem) clamp(2.5rem, 6vh, 4rem);
 }
 
 .wel-loading {
@@ -337,13 +355,9 @@
 }
 
 .wel-theme {
-  position: fixed;
-  inset-block-start: clamp(0.9rem, 2.2vh, 1.5rem);
-  left: clamp(0.9rem, 2.2vw, 1.6rem);
-  z-index: 40;
-
-  inline-size: 2.75rem;
-  block-size: 2.75rem;
+  flex: 0 0 auto;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -352,10 +366,9 @@
   cursor: pointer;
 
   color: var(--text-secondary);
-  background: color-mix(in srgb, var(--th-bg-card) 82%, transparent);
+  background: var(--th-bg-card);
   border: 1px solid var(--th-border-default);
   box-shadow: var(--th-shadow-sm);
-  backdrop-filter: blur(10px);
   transition: color var(--dur-fast), border-color var(--dur-fast),
               transform var(--dur-fast), box-shadow var(--dur-fast);
 }
@@ -393,10 +406,9 @@
 [data-theme="light"] .wel-ico-moon { opacity: 0; transform: rotate(70deg) scale(0.55); }
 [data-theme="light"] .wel-ico-sun  { opacity: 1; transform: rotate(0deg) scale(1); }
 
-/* الترويسة تفسح مكاناً للزر على الشاشات الضيقة فلا يركبها */
-@media (max-width: 460px) {
-  .wel-theme { inline-size: 2.5rem; block-size: 2.5rem; }
-  .wel-hero { padding-block-start: clamp(3.6rem, 9vh, 5rem); }
+@media (max-width: 560px) {
+  .wel-band { gap: 0.9rem; }
+  .wel-stats { inline-size: 100%; justify-content: space-between; }
 }
 
 @media (prefers-reduced-motion: reduce) {

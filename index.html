@@ -6,7 +6,7 @@
   <title>حروف العربية — فصحاء</title>
   <meta name="description" content="حروف العربية للناطقين بغيرها — دروس تفاعلية: صوت الحرف ورسمه وموضعه في الكلمة" />
 
-  <!-- الوضع الليلي/النهاري مشترك مع المحاضرات ولوحة التحكم: نفس المفتاح. -->
+  <!-- الوضع الليلي/النهاري مشترك مع الدروس ولوحة التحكم: نفس المفتاح. -->
   <script>try{var t=localStorage.getItem('lesson-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 
   <!-- style.css مصدر الهوية: الخطوط ورموز الألوان والوضعان.
@@ -17,40 +17,47 @@
 
 <body class="wel-body">
 
-  <!-- مبدّل الوضع — يشارك المحاضرة ولوحة التحكم مفتاح lesson-theme نفسه،
-       فالوضع يتبع الزائر بين الصفحات الثلاث. -->
-  <button class="wel-theme" id="wel-theme" type="button" aria-pressed="false">
-    <span class="wel-theme-track" aria-hidden="true">
-      <svg class="wel-ico wel-ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20.5 14.3A8.6 8.6 0 1 1 9.7 3.5a6.9 6.9 0 0 0 10.8 10.8Z"/>
-      </svg>
-      <svg class="wel-ico wel-ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="4.1"/>
-        <path d="M12 2.4v2.3M12 19.3v2.3M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.4 12h2.3M19.3 12h2.3M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/>
-      </svg>
-    </span>
-    <span class="wel-sr" id="wel-theme-label">التبديل إلى الوضع النهاري</span>
-  </button>
-
   <header class="wel-hero">
-    <p class="wel-eyebrow">فصحاء</p>
-    <h1 class="wel-title">حروف العربية</h1>
-    <p class="wel-sub">للناطقين بغيرها</p>
 
-    <div class="wel-ornament" aria-hidden="true"><span>❁</span><span>✿</span><span>❁</span></div>
+    <!-- سطر علويّ: المنصّة يميناً ومبدّل الوضع يساراً.
+         الزر داخل التخطيط لا طافياً فوقه، فلا يفرض حشواً يتجنّبه. -->
+    <div class="wel-topbar">
+      <p class="wel-eyebrow">فصحاء</p>
 
-    <p class="wel-lede">
-      كل درس سبع مراحل: يسمع الطالب الحرف، ثم يراه، ثم يتتبّع رسمه،
-      ثم يجده في الكلمة. وما بعد الحروف حركاتها وما يلحقها.
-    </p>
+      <!-- يشارك الدروس ولوحة التحكم مفتاح lesson-theme نفسه،
+           فالوضع يتبع الزائر بين الصفحات الثلاث. -->
+      <button class="wel-theme" id="wel-theme" type="button" aria-pressed="false">
+        <span class="wel-theme-track" aria-hidden="true">
+          <svg class="wel-ico wel-ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.5 14.3A8.6 8.6 0 1 1 9.7 3.5a6.9 6.9 0 0 0 10.8 10.8Z"/>
+          </svg>
+          <svg class="wel-ico wel-ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4.1"/>
+            <path d="M12 2.4v2.3M12 19.3v2.3M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.4 12h2.3M19.3 12h2.3M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/>
+          </svg>
+        </span>
+        <span class="wel-sr" id="wel-theme-label">التبديل إلى الوضع النهاري</span>
+      </button>
+    </div>
 
-    <dl class="wel-stats" id="wel-stats" hidden>
-      <div><dt>دروس جاهزة</dt><dd id="stat-lessons">—</dd></div>
-      <div><dt>حروف مغطّاة</dt><dd id="stat-letters">—</dd></div>
-      <div><dt>مراحل في كل درس</dt><dd>٧</dd></div>
-    </dl>
+    <!-- الشريط: الاسم يميناً والأرقام يساراً — الفراغ الأفقي مستغَلّ
+         بدل أن تمتدّ الصفحة طولاً. -->
+    <div class="wel-band">
+      <div class="wel-identity">
+        <h1 class="wel-title">حروف العربية</h1>
+        <p class="wel-sub">للناطقين بغيرها</p>
+        <p class="wel-lede">سبع مراحل في كل درس: يسمع الحرف، ويراه، ويتتبّع رسمه، ويجده في الكلمة.</p>
+      </div>
+
+      <dl class="wel-stats" id="wel-stats" hidden>
+        <div><dt>دروس جاهزة</dt><dd id="stat-lessons">—</dd></div>
+        <div><dt>حروف مغطّاة</dt><dd id="stat-letters">—</dd></div>
+        <div><dt>مراحل</dt><dd>٧</dd></div>
+      </dl>
+    </div>
+
   </header>
 
   <main class="wel-main">
