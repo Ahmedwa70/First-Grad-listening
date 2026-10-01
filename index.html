@@ -3,101 +3,96 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>لوحة التحكم — دروس الاستماع</title>
-  <meta name="description" content="حالة اكتمال دروس الاستماع — نظام التدريس التفاعلي" />
+  <title>حروف العربية — فصحاء</title>
+  <meta name="description" content="حروف العربية للناطقين بغيرها — دروس تفاعلية: صوت الحرف ورسمه وموضعه في الكلمة" />
 
-  <!-- الوضع الليلي/النهاري مشترك مع المحاضرات: نفس المفتاح، نفس السلوك. -->
+  <!-- الوضع الليلي/النهاري مشترك مع الدروس ولوحة التحكم: نفس المفتاح. -->
   <script>try{var t=localStorage.getItem('lesson-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 
-  <!-- style.css هو مصدر الهوية: الخطوط ورموز الألوان والوضعان.
-       لوحة التحكم تستهلكها ولا تعيد تعريفها، فتبقى الواجهتان مشروعاً واحداً. -->
+  <!-- style.css مصدر الهوية: الخطوط ورموز الألوان والوضعان.
+       صفحة الدروس تستهلكها ولا تعيد تعريفها — كما تفعل لوحة التحكم. -->
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/welcome.css" />
 </head>
 
-<body class="dash-body">
+<body class="wel-body">
 
-  <header class="dash-header">
-    <div class="dash-header-inner">
+  <header class="wel-hero">
 
-      <div class="dash-identity">
-        <h1 class="dash-title">لوحة التحكم</h1>
-        <p class="dash-subtitle">دروس الاستماع — اللغة العربية للناطقين بغيرها</p>
-      </div>
+    <!-- سطر علويّ: المنصّة يميناً ومبدّل الوضع يساراً.
+         الزر داخل التخطيط لا طافياً فوقه، فلا يفرض حشواً يتجنّبه. -->
+    <div class="wel-topbar">
+      <p class="wel-eyebrow">فصحاء</p>
 
-      <div class="dash-header-actions">
-        <button class="dash-icon-btn" id="dash-refresh" title="إعادة الفحص" aria-label="إعادة الفحص">↻</button>
-        <button class="dash-icon-btn" id="dash-theme" title="تبديل الوضع" aria-label="تبديل الوضع">☾</button>
-      </div>
-
+      <!-- يشارك الدروس ولوحة التحكم مفتاح lesson-theme نفسه،
+           فالوضع يتبع الزائر بين الصفحات الثلاث. -->
+      <button class="wel-theme" id="wel-theme" type="button" aria-pressed="false">
+        <span class="wel-theme-track" aria-hidden="true">
+          <svg class="wel-ico wel-ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.5 14.3A8.6 8.6 0 1 1 9.7 3.5a6.9 6.9 0 0 0 10.8 10.8Z"/>
+          </svg>
+          <svg class="wel-ico wel-ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4.1"/>
+            <path d="M12 2.4v2.3M12 19.3v2.3M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.4 12h2.3M19.3 12h2.3M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/>
+          </svg>
+        </span>
+        <span class="wel-sr" id="wel-theme-label">التبديل إلى الوضع النهاري</span>
+      </button>
     </div>
-    <div class="dash-ornament" aria-hidden="true"><span>❁</span><span>✿</span><span>❁</span></div>
+
+    <!-- الشريط: الاسم يميناً والأرقام يساراً — الفراغ الأفقي مستغَلّ
+         بدل أن تمتدّ الصفحة طولاً. -->
+    <div class="wel-band">
+      <div class="wel-identity">
+        <h1 class="wel-title">حروف العربية</h1>
+        <p class="wel-sub">للناطقين بغيرها</p>
+        <p class="wel-lede">سبع مراحل في كل درس: يسمع الحرف، ويراه، ويتتبّع رسمه، ويجده في الكلمة.</p>
+      </div>
+
+      <dl class="wel-stats" id="wel-stats" hidden>
+        <div><dt>دروس جاهزة</dt><dd id="stat-lessons">—</dd></div>
+        <div><dt>حروف مغطّاة</dt><dd id="stat-letters">—</dd></div>
+        <div><dt>مراحل</dt><dd>٧</dd></div>
+      </dl>
+    </div>
+
   </header>
 
-  <main class="dash-main">
+  <main class="wel-main">
 
-    <!-- شريط التقدّم أثناء الفحص -->
-    <section class="dash-scanning" id="dash-scanning" aria-live="polite">
-      <div class="dash-scan-label">جارٍ فحص الدروس…</div>
-      <div class="dash-scan-track"><div class="dash-scan-fill" id="dash-scan-fill"></div></div>
-      <div class="dash-scan-note" id="dash-scan-note">يُقرأ كل درس على حدة ثم تُفحص ملفاته</div>
+    <section class="wel-loading" id="wel-loading" aria-live="polite">
+      <span class="wel-spinner" aria-hidden="true"></span>
+      <span>جارٍ تحميل الدروس…</span>
     </section>
 
-    <!-- حالة الربط بمجلد المشروع -->
-    <section class="dash-connect" id="dash-connect" data-state="manual" aria-live="polite"></section>
+    <section class="wel-grid" id="wel-grid" aria-label="الدروس"></section>
 
-    <!-- الخلاصة -->
-    <section class="dash-summary" id="dash-summary" hidden aria-label="الخلاصة">
-      <article class="dash-stat" data-tone="lessons">
-        <span class="dash-stat-label">الدروس المبنية</span>
-        <span class="dash-stat-value" id="stat-lessons">—</span>
-        <span class="dash-stat-meta" id="stat-lessons-meta"></span>
-      </article>
-      <article class="dash-stat" data-tone="complete">
-        <span class="dash-stat-label">دروس مكتملة الوسائط</span>
-        <span class="dash-stat-value" id="stat-complete">—</span>
-        <span class="dash-stat-meta" id="stat-complete-meta"></span>
-      </article>
-      <article class="dash-stat" data-tone="audio">
-        <span class="dash-stat-label">الملفات الصوتية</span>
-        <span class="dash-stat-value" id="stat-audio">—</span>
-        <span class="dash-stat-meta" id="stat-audio-meta"></span>
-      </article>
-      <article class="dash-stat" data-tone="video">
-        <span class="dash-stat-label">مقاطع الفيديو</span>
-        <span class="dash-stat-value" id="stat-video">—</span>
-        <span class="dash-stat-meta" id="stat-video-meta"></span>
-      </article>
+    <!-- ما بعد المبنيّ — بطاقة واحدة صادقة بلا أرقام مخمَّنة -->
+    <section class="wel-next" id="wel-next" hidden aria-label="قيد الإعداد">
+      <span class="wn-badge" aria-hidden="true">◷</span>
+      <div class="wn-body">
+        <h2 class="wn-title">دروس أخرى قيد الإعداد</h2>
+        <ul class="wn-topics">
+          <li>ل</li><li>الحركات</li><li>الشدة</li><li>التنوين</li>
+          <li>اللام الشمسية والقمرية</li><li>المدود</li><li>الكتابة المتصلة</li>
+        </ul>
+      </div>
     </section>
 
-    <!-- المرشّحات -->
-    <nav class="dash-filters" id="dash-filters" hidden aria-label="تصفية الدروس">
-      <button class="dash-filter is-active" data-filter="all">الكل</button>
-      <button class="dash-filter" data-filter="incomplete">ناقصة</button>
-      <button class="dash-filter" data-filter="complete">مكتملة</button>
-      <button class="dash-filter" data-filter="unbuilt">لم تُبنَ</button>
-    </nav>
-
-    <!-- الشبكة -->
-    <section class="dash-grid" id="dash-grid" aria-label="الدروس"></section>
-
-    <!-- حالة تعذّر القراءة -->
-    <section class="dash-blocked" id="dash-blocked" hidden>
-      <div class="dash-blocked-icon" aria-hidden="true">⚠</div>
-      <h2>تعذّر قراءة بيانات الدروس</h2>
-      <p>منع المتصفح لوحة التحكم من قراءة ملفات الدروس بهذه الطريقة في الفتح.</p>
-      <p class="dash-blocked-hint">افتح المشروع عبر خادم محلي، أو استخدم Brave أو Chrome بدل Safari.</p>
+    <section class="wel-empty" id="wel-empty" hidden>
+      <p>تعذّر تحميل قائمة الدروس.</p>
+      <p class="wel-empty-hint">جرّب تحديث الصفحة، أو افتح درساً مباشرة عبر <code dir="ltr">lecture.html?lesson=01</code></p>
     </section>
 
   </main>
 
-  <footer class="dash-footer">
-    <span class="dash-footer-ornament" aria-hidden="true">❁✿❁</span>
-    <span id="dash-footer-note">نظام التدريس التفاعلي</span>
+  <footer class="wel-footer">
+    <span class="wel-footer-ornament" aria-hidden="true">❁✿❁</span>
+    <span>اللغة العربية للناطقين بغيرها</span>
   </footer>
 
-  <script src="js/dash-store.js"></script>
-  <script src="js/dash-upload.js"></script>
-  <script src="js/dashboard.js"></script>
+  <script src="js/welcome.js"></script>
 </body>
 </html>

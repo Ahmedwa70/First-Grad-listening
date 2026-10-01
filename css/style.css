@@ -3634,6 +3634,36 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 
 /* ─── D1 Identify: بطاقة مركزية بأربع حالات كشف ──────── */
 .p6-answer-d1 {
+  /* ══════════════════════════════════════════════════════════
+     حجم حرف P6 — مصدر واحد لا ثاني له.
+     كان مكتوباً في ثلاثة مواضع (الأساس واستعلامَي الشاشة) فتباعدت
+     القيم. استعلامات الشاشة تُغيّر هذا الرمز وحده لا قاعدة الحرف.
+     الحرف بطل هذا التدريب: الطالب يسمع ثم يرى، والرؤية هي التأكيد.
+
+     لماذا calc لا vh مجرّدة؟ الصندوق لا ينمو بنسبة الشاشة: أشرطة
+     المحاضرة (التبويبات والنقاط وزر التالي وشريط المعلم) تأخذ
+     ارتفاعاً شبه ثابت، فما يبقى للصندوق = نسبة من الشاشة ناقص ذلك
+     الثابت. قِيس الحدّ الأقصى الذي يسع الحرف دون قصّ الاسم والشرح
+     على 810 و850 و878 و900 و950 و1000 و1080، فخرج خطّ الاحتواء:
+     نحو 0.55 من ارتفاع الشاشة ناقص 346 بكسل. المكتوب هنا أدنى منه
+     بنحو سبعة بكسلات — هامش يحتمل اختلاف الخطوط وطول الشروح.
+     القياس على عرض 1920: الأشرطة تكبر بعرض الشاشة أيضاً، فالشاشة
+     الأعرض أضيق سقفاً. من قاس على 1366 وحدها ظنّ السقف أعلى.
+     يحرسه p6AssertGlyphFits — ينبّه إن فاض المحتوى.
+     ══════════════════════════════════════════════════════════ */
+  --p6-glyph-size: clamp(5rem, calc(55vh - 353px), 11rem);
+  /* ══════════════════════════════════════════════════════════
+     مقياس ما تحت الحرف — رمز واحد يحكم التابع كلّه.
+     البطاقة ذات ارتفاع محدود: ما يأخذه التابع (الاسم والشارتان
+     والشرح) يفقده البطل. فبدل كتابة مقاس لكل عنصر عند كل ارتفاع،
+     عنصر واحد يضرب فيه الجميع. على الشاشات الطويلة = 1 فلا يتغيّر
+     شيء عمّا كان. على القصيرة ينزل، فيتنازل التابع عن جزء من
+     ارتفاعه لصالح الحرف.
+     الشارتان («١ إصبع» و«نقطة واحدة فوق») محتوى يقرؤه الطالب من
+     آخر القاعة، فلهما أرضية قراءة عبر max() لا تنزل تحتها مهما
+     قصرت الشاشة. الاسم والشرح للمعلّم فيحتملان أكثر.
+     ══════════════════════════════════════════════════════════ */
+  --p6-meta-scale: 1;
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: center;
@@ -3644,17 +3674,27 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 }
 .p6-answer-d1:not(.visible)::before { content: none; }
 .p6-answer-d1.visible::before { content: none; }
+/* ارتفاع السطر يحتوي حبر الحرف لا حجم الخط وحده.
+   line-height:1 يجعل الصندوق = حجم الخط بالضبط، والحروف العربية ذات
+   الأقواس النازلة (غ ج ح ع ض) يخرج حبرها أسفله فتلامس ما تحتها.
+   أعمق حرف عندنا «غ»: حبره 1.247 من حجم الخط. فـ1.25 تكفيه بـ0.3
+   بكسل وحدها — هامش لا يُعتمد عليه. 1.35 يترك نحو 11 بكسل، وهو
+   ما يحتمل حروفاً قادمة أعمق واختلاف إصدارات الخط.
+   يحرسه p6AssertGlyphFits في auditory-discrimination.js. */
 .p6-answer-d1 .p6-answer-char {
-  font-size: clamp(5.5rem, 12vh, 7rem);
-  line-height: 1;
+  font-size: var(--p6-glyph-size);
+  line-height: 1.35;
   font-weight: 900;
-  margin-bottom: 0.5rem;
+  /* الفراغ حول البطل يصنع سيطرته لا حجمه وحده */
+  margin-bottom: clamp(0.5rem, 1.4vh, 1rem);
   flex-shrink: 0;
+  /* هالة خفيفة بلون الحرف نفسه — تفصله عن الخلفية بلا إطار */
+  text-shadow: 0 0 clamp(1.5rem, 4vh, 3rem) color-mix(in srgb, currentColor 26%, transparent);
 }
 .p6-answer-d1 .p6-answer-name {
-  font-size: clamp(1.3rem, 2.5vw, 1.65rem);
+  font-size: calc(clamp(0.92rem, 1.6vw, 1.08rem) * var(--p6-meta-scale, 1));
   font-weight: 700;
-  padding: 0.45rem 1.8rem;
+  padding: calc(0.3rem * var(--p6-meta-scale, 1)) calc(1rem * var(--p6-meta-scale, 1));
   background: rgba(255,255,255,0.1);
   border-radius: 999px;
   border: 1px solid rgba(255,255,255,0.15);
@@ -3716,24 +3756,46 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 }
 
 /* بطاقتان متجاورتان — دليل الإشارة + النقطة */
+/* الشرائح لمعلومة قصيرة، والجملة التعليمية سطرٌ حرّ تحتها.
+   كانت الجملة داخل شريحة بـ flex:1 و nowrap فتبتلع العرض كلّه. */
+.p6-answer-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(clamp(0.35rem, 0.9vh, 0.6rem) * var(--p6-meta-scale, 1));
+  width: 100%;
+  margin-top: calc(clamp(0.3rem, 0.8vh, 0.6rem) * var(--p6-meta-scale, 1));
+  padding-top: calc(clamp(0.5rem, 1vh, 0.85rem) * var(--p6-meta-scale, 1));
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+[data-theme="light"] .p6-answer-meta { border-top-color: rgba(0,0,0,0.08); }
+
+.p6-answer-fact {
+  margin: 0;
+  max-inline-size: 46rem;
+  font-size: calc(clamp(0.78rem, 1.3vw, 0.95rem) * var(--p6-meta-scale, 1));
+  line-height: 1.7;
+  color: var(--text-dim);
+  text-align: center;
+}
+
 .p6-finger-chips {
   display: flex;
   align-items: stretch;
   justify-content: center;
-  gap: clamp(0.5rem, 1vw, 0.8rem);
-  width: 100%;
-  margin-top: clamp(0.4rem, 1vh, 0.8rem);
-  padding-top: clamp(0.6rem, 1.2vh, 1rem);
-  border-top: 1px solid rgba(255,255,255,0.08);
+  flex-wrap: wrap;
+  gap: calc(clamp(0.4rem, 0.9vw, 0.7rem) * var(--p6-meta-scale, 1));
 }
+/* flex:0 — الشريحة بقدر محتواها لا بقدر الفراغ المتاح */
 .p6-chip {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: clamp(0.5rem, 1vh, 0.75rem) clamp(0.8rem, 1.5vw, 1.2rem);
-  border-radius: 12px;
+  gap: calc(0.45rem * var(--p6-meta-scale, 1));
+  padding: calc(clamp(0.32rem, 0.7vh, 0.5rem) * var(--p6-meta-scale, 1))
+           calc(clamp(0.7rem, 1.2vw, 1rem) * var(--p6-meta-scale, 1));
+  border-radius: 10px;
   direction: rtl;
   white-space: nowrap;
 }
@@ -3746,7 +3808,7 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   border: 1px solid rgba(148,163,184,0.2);
 }
 .p6-chip-num {
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-size: max(1.05rem, calc(clamp(1.15rem, 2vw, 1.5rem) * var(--p6-meta-scale, 1)));
   font-weight: 900;
   color: var(--gold);
   line-height: 1;
@@ -3758,12 +3820,12 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   flex-shrink: 0;
 }
 .p6-chip-label {
-  font-size: clamp(0.85rem, 1.5vw, 1.05rem);
+  font-size: max(0.78rem, calc(clamp(0.76rem, 1.3vw, 0.92rem) * var(--p6-meta-scale, 1)));
   color: var(--text-secondary);
   font-weight: 600;
 }
 [data-theme="light"] .p6-finger-chips {
-  border-top-color: rgba(0,0,0,0.08);
+  border-top-color: transparent;
 }
 [data-theme="light"] .p6-chip-finger {
   background: rgba(245,158,11,0.08);
@@ -6171,7 +6233,8 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   .p6-big-play { height: clamp(3.5rem, 7vh, 5.5rem); }
   .p6-answer-zone { min-height: clamp(130px, 20vh, 180px); }
   .p6-answer-d1 { gap: clamp(0.2rem, 0.6vh, 0.6rem); padding: clamp(0.4rem, 1vh, 1.5rem) clamp(0.8rem, 2vw, 1.5rem); }
-  .p6-answer-d1 .p6-answer-char { font-size: clamp(4rem, 10vh, 6rem); margin-bottom: 0.2rem; }
+  .p6-answer-d1 { --p6-glyph-size: clamp(4rem, calc(36vh - 185px), 8.5rem); }
+  .p6-answer-d1 .p6-answer-char { margin-bottom: 0.3rem; }
   .p6-finger-chips { margin-top: clamp(0.2rem, 0.5vh, 0.5rem); padding-top: clamp(0.3rem, 0.6vh, 0.6rem); }
   .p6-teacher-bar { padding: 0.35rem 0.8rem; }
   .p6-d3-reveal-card,
@@ -6208,7 +6271,12 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   .p6-big-play { height: clamp(3rem, 6vh, 4.5rem); font-size: clamp(1rem, 1.8vw, 1.3rem); }
   .p6-big-play::before { font-size: clamp(1.1rem, 2.5vh, 1.5rem); }
   .p6-answer-zone { min-height: clamp(110px, 18vh, 160px); }
-  .p6-answer-d1 .p6-answer-char { font-size: clamp(3.5rem, 8vh, 5rem); }
+  /* النافذة القصيرة: التابع يتنازل، فيرتفع سقف البطل.
+     القيمتان مقيستان معاً — تغيير إحداهما وحدها يكسر التوازن. */
+  .p6-answer-d1 {
+    --p6-meta-scale: 0.8;
+    --p6-glyph-size: clamp(2.5rem, calc(62.5vh - 357px), 7rem);
+  }
   .p6-play-pill { flex: 0 0 44px; width: 44px; height: 44px; min-height: 44px; }
   .p6-cmp-play { flex: 0 0 46px; width: 46px; height: 46px; min-height: 46px; }
   .p6-d3-reveal-card,

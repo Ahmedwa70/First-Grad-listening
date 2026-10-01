@@ -24,18 +24,18 @@ const LESSON = {
   meta: {
     id:       'lesson-03',
     number:   3,
-    title:    'الحروف الثالثة',
+    title:    'الدرس الثالث',
     subtitle: 'س  ش  ص',
-    summaryTitle: 'انتهت المحاضرة الثالثة',
-    welcomeHintAr: '🎓 المحاضرة الثالثة',
+    summaryTitle: 'اكتمل الدرس الثالث',
+    welcomeHintAr: '🎓 الدرس الثالث',
     welcomeHintZh: '第三课',
     level:    'A0',
     duration: 120,
     targetLetters: ['س', 'ش', 'ص'],
-    description: 'المحاضرة الثالثة — الحروف: س ش ص — نظام التدريس التفاعلي',
-    docTitle: 'المحاضرة الثالثة — س ش ص',
+    description: 'الدرس الثالث — الحروف: س ش ص — حروف العربية',
+    docTitle: 'الدرس الثالث — س ش ص',
     completion: {
-      title: 'المحاضرة الثالثة مكتملة',
+      title: 'الدرس الثالث مكتمل',
       chars: [
         { id: 'seen',  char: 'س' },
         { id: 'sheen', char: 'ش' },
@@ -401,7 +401,7 @@ const LESSON = {
           id:      'P1-S2',
           label:   'الخطوة ٢',
           content: 'universe',
-          hint:    '🎓 المحاضرة الثالثة · 第三课',
+          hint:    '🎓 الدرس الثالث · 第三课',
         },
         {
           id:      'P1-S3',

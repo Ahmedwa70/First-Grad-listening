@@ -28,18 +28,18 @@ const LESSON = {
   meta: {
     id:       'lesson-06',
     number:   6,
-    title:    'الحروف السادسة',
+    title:    'الدرس السادس',
     subtitle: 'ف  و  ق  ك',
-    summaryTitle: 'انتهت المحاضرة السادسة',
-    welcomeHintAr: '🎓 المحاضرة السادسة',
+    summaryTitle: 'اكتمل الدرس السادس',
+    welcomeHintAr: '🎓 الدرس السادس',
     welcomeHintZh: '第六课',
     level:    'A0',
     duration: 120,
     targetLetters: ['ف', 'و', 'ق', 'ك'],
-    description: 'المحاضرة السادسة — الحروف: ف و ق ك — نظام التدريس التفاعلي',
-    docTitle: 'المحاضرة السادسة — ف و ق ك',
+    description: 'الدرس السادس — الحروف: ف و ق ك — حروف العربية',
+    docTitle: 'الدرس السادس — ف و ق ك',
     completion: {
-      title: 'المحاضرة السادسة مكتملة',
+      title: 'الدرس السادس مكتمل',
       chars: [
         { id: 'fa',   char: 'ف' },
         { id: 'waw',  char: 'و' },
@@ -144,7 +144,7 @@ const LESSON = {
       videoFile:  'assets/videos/waw.mp4',
       steps: [
         { label: 'رسم الجسم', desc: 'ارسم دائرة صغيرة مطبقة على سطر الكلمة' },
-        { label: 'بلا نقاط', desc: 'لا نقطة إطلاقاً — الشكل الأصغر في هذه المحاضرة' },
+        { label: 'بلا نقاط', desc: 'لا نقطة إطلاقاً — الشكل الأصغر في هذا الدرس' },
         { label: 'مراجعة', desc: 'دائرة مطبقة بلا نقاط = و — تستدير به الشفتان' },
       ],
       color: '#16A085',
@@ -446,7 +446,7 @@ const LESSON = {
           id:      'P1-S2',
           label:   'الخطوة ٢',
           content: 'universe',
-          hint:    '🎓 المحاضرة السادسة · 第六课',
+          hint:    '🎓 الدرس السادس · 第六课',
         },
         {
           id:      'P1-S3',

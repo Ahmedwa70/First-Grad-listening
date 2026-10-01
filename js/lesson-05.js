@@ -27,18 +27,18 @@ const LESSON = {
   meta: {
     id:       'lesson-05',
     number:   5,
-    title:    'الحروف الخامسة',
+    title:    'الدرس الخامس',
     subtitle: 'م  ي  ا  ه',
-    summaryTitle: 'انتهت المحاضرة الخامسة',
-    welcomeHintAr: '🎓 المحاضرة الخامسة',
+    summaryTitle: 'اكتمل الدرس الخامس',
+    welcomeHintAr: '🎓 الدرس الخامس',
     welcomeHintZh: '第五课',
     level:    'A0',
     duration: 120,
     targetLetters: ['م', 'ي', 'ا', 'ه'],
-    description: 'المحاضرة الخامسة — الحروف: م ي ا ه — نظام التدريس التفاعلي',
-    docTitle: 'المحاضرة الخامسة — م ي ا ه',
+    description: 'الدرس الخامس — الحروف: م ي ا ه — حروف العربية',
+    docTitle: 'الدرس الخامس — م ي ا ه',
     completion: {
-      title: 'المحاضرة الخامسة مكتملة',
+      title: 'الدرس الخامس مكتمل',
       chars: [
         { id: 'meem', char: 'م' },
         { id: 'ya',   char: 'ي' },
@@ -481,7 +481,7 @@ const LESSON = {
           id:      'P1-S2',
           label:   'الخطوة ٢',
           content: 'universe',
-          hint:    '🎓 المحاضرة الخامسة · 第五课',
+          hint:    '🎓 الدرس الخامس · 第五课',
         },
         {
           id:      'P1-S3',
