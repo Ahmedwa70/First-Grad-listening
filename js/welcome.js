@@ -76,7 +76,42 @@ const Welcome = {
     if (!shown) empty.hidden = false;
   },
 
+  // ── مبدّل الوضع ─────────────────────────────────────────────
+  // نفس مفتاح lesson-theme الذي تستعمله المحاضرة ولوحة التحكم،
+  // ونفس السلوك: الليلي هو الافتراضي فلا يُخزَّن، والنهاري يُخزَّن.
+  // الزر لا يحتفظ بحالة خاصة به — يقرؤها من <html> في كل مرة.
+  _syncTheme() {
+    const light = document.documentElement.dataset.theme === 'light';
+    const btn = document.getElementById('wel-theme');
+    const label = document.getElementById('wel-theme-label');
+    if (!btn) return;
+    const text = light ? 'التبديل إلى الوضع الليلي' : 'التبديل إلى الوضع النهاري';
+    btn.setAttribute('aria-pressed', String(light));
+    btn.setAttribute('aria-label', text);
+    btn.setAttribute('title', text);
+    if (label) label.textContent = text;
+  },
+
+  _bindTheme() {
+    const btn = document.getElementById('wel-theme');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const html = document.documentElement;
+      if (html.dataset.theme === 'light') {
+        html.removeAttribute('data-theme');
+        try { localStorage.removeItem('lesson-theme'); } catch (e) {}
+      } else {
+        html.dataset.theme = 'light';
+        try { localStorage.setItem('lesson-theme', 'light'); } catch (e) {}
+      }
+      this._syncTheme();
+    });
+    this._syncTheme();
+  },
+
   init() {
+    this._bindTheme();
+
     const f = document.createElement('iframe');
     f.className = 'wel-reader';
     f.setAttribute('aria-hidden', 'true');

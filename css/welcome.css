@@ -225,3 +225,91 @@
   .wl-card:hover { transform: none; }
   .wl-card:hover .wl-letter { transform: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   مبدّل الوضع — زر ثابت في أعلى يسار الصفحة.
+   أيقونتان تتبادلان بدوران وتلاشٍ: الهلال في الوضع الليلي،
+   والشمس في النهاري. والحالة تُقرأ من data-theme على <html> وحدها،
+   فالمظهر انعكاس للحقيقة لا نسخة موازية منها.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* نصّ لقارئ الشاشة وحده */
+.wel-sr {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.wel-theme {
+  position: fixed;
+  inset-block-start: clamp(0.9rem, 2.2vh, 1.5rem);
+  left: clamp(0.9rem, 2.2vw, 1.6rem);
+  z-index: 40;
+
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--th-bg-card) 82%, transparent);
+  border: 1px solid var(--th-border-default);
+  box-shadow: var(--th-shadow-sm);
+  backdrop-filter: blur(10px);
+  transition: color var(--dur-fast), border-color var(--dur-fast),
+              transform var(--dur-fast), box-shadow var(--dur-fast);
+}
+
+.wel-theme:hover {
+  color: var(--gold);
+  border-color: var(--wel-gold-line);
+  transform: translateY(-1px);
+  box-shadow: var(--th-shadow-md);
+}
+.wel-theme:active { transform: translateY(0); }
+.wel-theme:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+.wel-theme-track {
+  position: relative;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  display: block;
+}
+
+.wel-ico {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  transition: opacity var(--dur-med) var(--ease-out),
+              transform var(--dur-med) var(--ease-out);
+}
+
+/* الوضع الليلي (الافتراضي): الهلال ظاهر، والشمس مطويّة */
+.wel-ico-moon { opacity: 1; transform: rotate(0deg) scale(1); }
+.wel-ico-sun  { opacity: 0; transform: rotate(-70deg) scale(0.55); }
+
+/* الوضع النهاري: تنعكس الحالتان */
+[data-theme="light"] .wel-ico-moon { opacity: 0; transform: rotate(70deg) scale(0.55); }
+[data-theme="light"] .wel-ico-sun  { opacity: 1; transform: rotate(0deg) scale(1); }
+
+/* الترويسة تفسح مكاناً للزر على الشاشات الضيقة فلا يركبها */
+@media (max-width: 460px) {
+  .wel-theme { inline-size: 2.5rem; block-size: 2.5rem; }
+  .wel-hero { padding-block-start: clamp(3.6rem, 9vh, 5rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wel-theme, .wel-ico { transition: none; }
+  .wel-theme:hover { transform: none; }
+}
