@@ -187,6 +187,39 @@ function p6ObserveD2Response(choice) {
   return activity.dispatch('OBSERVE_RESPONSE', { choice });
 }
 
+// ══════════════════════════════════════════════════════════════
+// حارس احتواء الحرف داخل صندوقه في جولة «تعرّف على الحرف».
+// الثابت: حبر الحرف لا يتجاوز الصندوق المخصّص له، فلا يلامس ما تحته.
+// الحروف العربية ذات الأقواس النازلة (غ ج ح ع ض) تكسر هذا الثابت
+// متى عاد line-height إلى 1 — ولا يظهر الكسر إلا في بعض الحروف،
+// فيسهل أن يمرّ دون انتباه. الحارس يقيس الحبر الحقيقي عبر Canvas
+// (actualBoundingBox) ويقارنه بارتفاع الصندوق، ثم ينبّه في الطرفية.
+// ══════════════════════════════════════════════════════════════
+function p6AssertGlyphFits() {
+  const el = document.querySelector('.p6-answer-d1 .p6-answer-char');
+  if (!el || !el.textContent.trim()) return;
+  let ink;
+  try {
+    const cs = getComputedStyle(el);
+    const ctx = document.createElement('canvas').getContext('2d');
+    if (!ctx) return;
+    ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const m = ctx.measureText(el.textContent.trim());
+    if (m.actualBoundingBoxAscent == null) return;   // متصفّح لا يدعم القياس
+    ink = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+  } catch (e) { return; }
+
+  const box = el.getBoundingClientRect().height;
+  if (ink > box + 0.5) {
+    console.warn(
+      `⚠️ ثابت P6 مكسور: حبر الحرف «${el.textContent.trim()}» ${ink.toFixed(1)}px ` +
+      `يتجاوز صندوقه ${box.toFixed(1)}px، فسيلامس ما تحته. ` +
+      'السبب غالباً line-height منخفض على ‎.p6-answer-d1 .p6-answer-char‎ — ' +
+      'راجع التعليق فوق القاعدة في css/style.css.'
+    );
+  }
+}
+
 function p6PlaySound(letterId, el) {
   p3PlaySound(letterId);
   p6MarkSoundButton(el);
@@ -376,6 +409,9 @@ function p6InitialRevealLabel(round) {
 
 function p6FollowupActionLabel(round) {
   const kbd = '<span class="p6-kbd">Space ␣</span>';
+  if (round && round.type === 'identify' && STATE.p6AnswerVisible) {
+    setTimeout(p6AssertGlyphFits, 60);
+  }
   if (round && round.type === 'identify' && STATE.p6RevealStep < 3) {
     return STATE.p6RevealStep === 1
       ? `كشف اسم الحرف ${kbd}`
@@ -454,6 +490,13 @@ function p6BuildItemHTML(round, item, revealStep = 0) {
     const letter = LESSON.letters.find(l => l.id === item.playId);
     const dotsRow = Array.from({ length: letter.dots }, () => '<span class="dot-circle"></span>').join('');
     const fingerWord = item.answer === 1 ? s.ui.finger.ar : s.ui.fingers.ar;
+    // الشريحة لمعلومة قصيرة محدّدة، والجملة التعليمية سطرٌ حرّ أسفلها.
+    // كانت letter.fact — وهي جملة كاملة — تُحشر داخل شريحة بـ nowrap
+    // فتبتلع عرض المنطقة كلّه.
+    const dotWord = letter.dots === 1 ? 'نقطة واحدة'
+                  : letter.dots === 2 ? 'نقطتان'
+                  : letter.dots ? letter.dots + ' نقاط' : '';
+    const dotsLabel = letter.dots ? dotWord + ' ' + (letter.dotPosition || '') : 'بلا نقاط';
     return `
       <div class="p6-q-banner">
         <div class="p6-q-banner-text">
@@ -468,9 +511,12 @@ function p6BuildItemHTML(round, item, revealStep = 0) {
         <div class="p6-card-prompt"><span class="p6-listen-icon">👂</span></div>
         <span class="p6-reveal-item r-char p6-answer-char p6-letter-glyph" style="color:${letter.color}">${letter.char}</span>
         <span class="p6-reveal-item r-name p6-answer-name">${letter.name} &bull; ${letter.phoneme}</span>
-        <div class="p6-reveal-item r-fingers p6-finger-chips">
-          <div class="p6-chip p6-chip-finger"><span class="p6-chip-num">${item.answer}</span><span class="p6-chip-label">${fingerWord}</span></div>
-          <div class="p6-chip p6-chip-dot"><span class="p6-chip-dots">${dotsRow}</span><span class="p6-chip-label">${letter.fact}</span></div>
+        <div class="p6-reveal-item r-fingers p6-answer-meta">
+          <div class="p6-finger-chips">
+            <div class="p6-chip p6-chip-finger"><span class="p6-chip-num">${item.answer}</span><span class="p6-chip-label">${fingerWord}</span></div>
+            <div class="p6-chip p6-chip-dot"><span class="p6-chip-dots">${dotsRow}</span><span class="p6-chip-label">${dotsLabel}</span></div>
+          </div>
+          <p class="p6-answer-fact">${letter.fact}</p>
         </div>
       </div>`;
   }

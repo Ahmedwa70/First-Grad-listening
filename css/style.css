@@ -3644,9 +3644,16 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 }
 .p6-answer-d1:not(.visible)::before { content: none; }
 .p6-answer-d1.visible::before { content: none; }
+/* ارتفاع السطر يحتوي حبر الحرف لا حجم الخط وحده.
+   line-height:1 يجعل الصندوق = حجم الخط بالضبط، والحروف العربية ذات
+   الأقواس النازلة (غ ج ح ع ض) يخرج حبرها أسفله فتلامس ما تحتها.
+   أعمق حرف عندنا «غ»: حبره 1.247 من حجم الخط. فـ1.25 تكفيه بـ0.3
+   بكسل وحدها — هامش لا يُعتمد عليه. 1.35 يترك نحو 11 بكسل، وهو
+   ما يحتمل حروفاً قادمة أعمق واختلاف إصدارات الخط.
+   يحرسه p6AssertGlyphFits في auditory-discrimination.js. */
 .p6-answer-d1 .p6-answer-char {
   font-size: clamp(5.5rem, 12vh, 7rem);
-  line-height: 1;
+  line-height: 1.35;
   font-weight: 900;
   margin-bottom: 0.5rem;
   flex-shrink: 0;
@@ -3716,24 +3723,45 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 }
 
 /* بطاقتان متجاورتان — دليل الإشارة + النقطة */
+/* الشرائح لمعلومة قصيرة، والجملة التعليمية سطرٌ حرّ تحتها.
+   كانت الجملة داخل شريحة بـ flex:1 و nowrap فتبتلع العرض كلّه. */
+.p6-answer-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.35rem, 0.9vh, 0.6rem);
+  width: 100%;
+  margin-top: clamp(0.3rem, 0.8vh, 0.6rem);
+  padding-top: clamp(0.5rem, 1vh, 0.85rem);
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+[data-theme="light"] .p6-answer-meta { border-top-color: rgba(0,0,0,0.08); }
+
+.p6-answer-fact {
+  margin: 0;
+  max-inline-size: 46rem;
+  font-size: clamp(0.78rem, 1.3vw, 0.95rem);
+  line-height: 1.7;
+  color: var(--text-dim);
+  text-align: center;
+}
+
 .p6-finger-chips {
   display: flex;
   align-items: stretch;
   justify-content: center;
-  gap: clamp(0.5rem, 1vw, 0.8rem);
-  width: 100%;
-  margin-top: clamp(0.4rem, 1vh, 0.8rem);
-  padding-top: clamp(0.6rem, 1.2vh, 1rem);
-  border-top: 1px solid rgba(255,255,255,0.08);
+  flex-wrap: wrap;
+  gap: clamp(0.4rem, 0.9vw, 0.7rem);
 }
+/* flex:0 — الشريحة بقدر محتواها لا بقدر الفراغ المتاح */
 .p6-chip {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: clamp(0.5rem, 1vh, 0.75rem) clamp(0.8rem, 1.5vw, 1.2rem);
-  border-radius: 12px;
+  gap: 0.45rem;
+  padding: clamp(0.32rem, 0.7vh, 0.5rem) clamp(0.7rem, 1.2vw, 1rem);
+  border-radius: 10px;
   direction: rtl;
   white-space: nowrap;
 }
@@ -3746,7 +3774,7 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   border: 1px solid rgba(148,163,184,0.2);
 }
 .p6-chip-num {
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
   font-weight: 900;
   color: var(--gold);
   line-height: 1;
@@ -3758,12 +3786,12 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   flex-shrink: 0;
 }
 .p6-chip-label {
-  font-size: clamp(0.85rem, 1.5vw, 1.05rem);
+  font-size: clamp(0.76rem, 1.3vw, 0.92rem);
   color: var(--text-secondary);
   font-weight: 600;
 }
 [data-theme="light"] .p6-finger-chips {
-  border-top-color: rgba(0,0,0,0.08);
+  border-top-color: transparent;
 }
 [data-theme="light"] .p6-chip-finger {
   background: rgba(245,158,11,0.08);
