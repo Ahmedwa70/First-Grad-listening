@@ -15,27 +15,73 @@
 const Welcome = {
   TOTAL: 16,
   READ_TIMEOUT: 8000,
-  _frame: null,
 
-  readLesson(n) {
-    const id = String(n).padStart(2, '0');
+  // ══════════════════════════════════════════════════════════
+  // قراءة الدروس — دفعة واحدة لا واحداً بعد واحد.
+  // كانت القراءة متتابعة: إطار واحد يُعاد استعماله ستّ عشرة مرة،
+  // كلٌّ ينتظر جواب سابقه. وكل قراءة طلبان عبر الشبكة (صفحة
+  // القارئ ثم ملف الدرس)، فالمجموع نحو ٣٢ رحلة متتابعة. على
+  // الجهاز لا تُحسّ، وعلى الشبكة تصير ثوانيَ والبطاقات تتساقط
+  // واحدة خلف الأخرى أمام الزائر.
+  // الآن إطار لكل درس، تنطلق كلها في اللحظة نفسها، فالانتظار
+  // موجة واحدة لا ستّ عشرة. والمبدأ لم يتغيّر: الصفحة تسأل ولا
+  // تحفظ قائمة مكتوبة، فدرسٌ يُضاف يظهر وحده.
+  // ══════════════════════════════════════════════════════════
+  readAll() {
+    const host = document.createElement('div');
+    host.className = 'wel-readers';
+    host.setAttribute('aria-hidden', 'true');
+
     return new Promise(resolve => {
+      const pending = new Set();
+      const results = new Map();
       let done = false;
-      const finish = (payload) => {
+      let timer = null;
+
+      const finish = () => {
         if (done) return;
         done = true;
         clearTimeout(timer);
         window.removeEventListener('message', onMessage);
-        resolve(payload);
+        host.remove();                 // الأُطر أدّت دورها فلا تبقى في الصفحة
+        const out = [];
+        for (let n = 1; n <= this.TOTAL; n++) {
+          const r = results.get(String(n).padStart(2, '0'));
+          if (r) out.push(r);          // الترتيب من الحلقة لا من ترتيب الوصول
+        }
+        resolve(out);
       };
+
+      const settle = (id, payload) => {
+        if (done || !pending.has(id)) return;   // جوابٌ مكرّر أو متأخّر
+        pending.delete(id);
+        if (payload) results.set(id, payload);
+        if (pending.size === 0) finish();
+      };
+
       const onMessage = (e) => {
         const d = e.data;
-        if (!d || typeof d !== 'object' || d.n !== id) return;
-        finish(d);
+        if (!d || typeof d !== 'object' || typeof d.n !== 'string') return;
+        settle(d.n, d);
       };
-      const timer = setTimeout(() => finish({ ok: false }), this.READ_TIMEOUT);
+
       window.addEventListener('message', onMessage);
-      this._frame.src = 'js/lesson-reader.html?n=' + id;
+      // مهلة واحدة للدفعة كلها لا مهلة لكل درس — القراءات متوازية،
+      // فمن تأخّر منها تأخّر في الوقت نفسه. ما وصل يُعرض، وما تأخّر يُترك.
+      timer = setTimeout(finish, this.READ_TIMEOUT);
+
+      for (let n = 1; n <= this.TOTAL; n++) {
+        const id = String(n).padStart(2, '0');
+        pending.add(id);
+        const f = document.createElement('iframe');
+        f.className = 'wel-reader';
+        f.setAttribute('tabindex', '-1');
+        f.src = 'js/lesson-reader.html?n=' + id;
+        host.appendChild(f);
+      }
+      // الإضافة إلى المستند مرة واحدة في النهاية: الإطار لا يبدأ
+      // التحميل قبل دخوله الصفحة، فتنطلق الستّ عشرة قراءة معاً.
+      document.body.appendChild(host);
     });
   },
 
@@ -86,22 +132,16 @@ const Welcome = {
     const grid = document.getElementById('wel-grid');
     const loading = document.getElementById('wel-loading');
     const empty = document.getElementById('wel-empty');
-    let shown = 0;
 
-    let letters = 0;
-    for (let n = 1; n <= this.TOTAL; n++) {
-      const r = await this.readLesson(n);
-      if (!r || !r.ok || !r.meta) continue;      // درس لم يُبنَ بعد — لا يُعرض
-      grid.insertAdjacentHTML('beforeend', this._card(r));
-      letters += (r.letters || []).length;
-      shown++;
-      if (shown === 1) loading.hidden = true;     // أول بطاقة تُنهي الانتظار
-    }
+    const built = (await this.readAll()).filter(r => r && r.ok && r.meta);
 
     loading.hidden = true;
-    if (!shown) { empty.hidden = false; return; }
+    if (!built.length) { empty.hidden = false; return; }
 
-    this._stats(shown, letters);
+    // إدراج واحد للشبكة كاملة — لا بطاقة خلف بطاقة.
+    grid.insertAdjacentHTML('beforeend', built.map(r => this._card(r)).join(''));
+
+    this._stats(built.length, built.reduce((n, r) => n + (r.letters || []).length, 0));
     const next = document.getElementById('wel-next');
     if (next) next.hidden = false;
   },
@@ -142,12 +182,6 @@ const Welcome = {
   init() {
     this._bindTheme();
 
-    const f = document.createElement('iframe');
-    f.className = 'wel-reader';
-    f.setAttribute('aria-hidden', 'true');
-    f.setAttribute('tabindex', '-1');
-    document.body.appendChild(f);
-    this._frame = f;
     this.run();
   },
 };
