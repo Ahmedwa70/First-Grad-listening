@@ -16,3 +16,7 @@ Desktop.ini
 # مؤقت
 *.log
 *.tmp
+
+# أدوات التحقق البصري المحلية (متصفح + مخرجات اللقطات)
+.tools/
+tools/visual/out/

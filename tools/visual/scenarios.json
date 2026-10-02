@@ -1,0 +1,200 @@
+{
+  "_ملاحظة": "خطوات كل سيناريو تتبع مسار المعلم الحقيقي: نقرات فعلية على أزرار الواجهة أو مفاتيح حقيقية. عدّل الخطوات والفحوص بحرية.",
+  "viewports": [
+    {
+      "w": 1920,
+      "h": 1080,
+      "label": "شاشة كاملة FHD"
+    },
+    {
+      "w": 1600,
+      "h": 900,
+      "label": "بروجكتور شائع"
+    },
+    {
+      "w": 1440,
+      "h": 900,
+      "label": "MacBook Air"
+    },
+    {
+      "w": 1366,
+      "h": 768,
+      "label": "لابتوب HD"
+    },
+    {
+      "w": 1352,
+      "h": 672,
+      "label": "مقاس اللقطة المرجعية"
+    },
+    {
+      "w": 1280,
+      "h": 720,
+      "label": "أدنى مقاس مستهدف"
+    }
+  ],
+  "blockers": [
+    ".resume-overlay",
+    "#attention-overlay.active",
+    ".help-panel.active",
+    ".teacher-help-panel.active"
+  ],
+  "scenarios": [
+    {
+      "name": "p6-d3-shin-seen",
+      "title": "الدرس ٣ · P6 · الأصوات المتقاربة (ش/س) — موضع العطل في اللقطة",
+      "url": "lecture.html?lesson=03",
+      "steps": [
+        "goToPhase(5)",
+        "(async () => { const wait = ms => new Promise(r => setTimeout(r, ms)); for (let i = 0; i < 6; i++) { const b = document.querySelector('.p6-stepper-btn'); if (!b) break; const t = (b.textContent || ''); b.click(); if (t.includes('ابدأ النشاط')) break; await wait(140); } return { demoMode: STATE.p6DemoMode }; })()",
+        {
+          "clickText": {
+            "sel": ".p6-round-btn",
+            "text": "الأصوات المتقاربة"
+          }
+        },
+        {
+          "click": ".p6-reveal-btn"
+        },
+        {
+          "click": ".p6-next-btn"
+        }
+      ],
+      "settleMs": 700,
+      "checks": [
+        {
+          "name": "الحالة المطلوبة بلغت (D3 مكشوف بالكامل)",
+          "js": "({ pass: STATE.p6DemoMode === false && STATE.p6AnswerVisible === true && STATE.p6RevealStep >= 2, detail: `demo=${STATE.p6DemoMode} visible=${STATE.p6AnswerVisible} step=${STATE.p6RevealStep}` })"
+        },
+        {
+          "name": "كبسولة الاسم/الرمز الصوتي: نص كامل بلا اقتطاع ولا تراكب",
+          "js": "(() => {\n  const cards = [...document.querySelectorAll('.p6-d3-reveal-card')];\n  const vis = cards.filter(c => { const a = c.querySelector('.p6-d3-card-answer'); return a && Number(getComputedStyle(a).opacity) > 0.9; });\n  if (!vis.length) return { pass: false, detail: 'لا بطاقة مكشوفة للقياس — السيناريو لم يصل إلى الحالة المطلوبة' };\n  const clips = [], hairs = [];\n  vis.forEach((c, i) => {\n    const pill = c.querySelector('.p6-d3-lc-name'), glyph = c.querySelector('.p6-d3-lc-char');\n    const cs = getComputedStyle(c), cr = c.getBoundingClientRect();\n    if (!pill) { clips.push(`#${i + 1} لا كبسولة`); return; }\n    const txt = pill.textContent.trim();\n    const clipTop = cr.top + parseFloat(cs.borderTopWidth);\n    const clipBottom = cr.bottom - parseFloat(cs.borderBottomWidth);\n    const pr = pill.getBoundingClientRect();\n    if (pill.scrollHeight > pill.clientHeight + 2) clips.push(`#${i + 1} «${txt}» مقصوص رأسياً: ${pill.clientHeight}px ظاهر من ${pill.scrollHeight}px`);\n    if (pill.scrollWidth > pill.clientWidth + 1) clips.push(`#${i + 1} «${txt}» مقصوص أفقياً`);\n    const over = Math.max(pr.bottom - clipBottom, clipTop - pr.top);\n    if (over > 2) clips.push(`#${i + 1} الكبسولة خارج منطقة البطاقة بمقدار ${over.toFixed(1)}px`);\n    else if (over > 0) hairs.push(`#${i + 1} تجاوز شعري ${over.toFixed(1)}px`);\n    if (glyph && glyph.getBoundingClientRect().bottom > pr.top + 1) clips.push(`#${i + 1} الحرف يتراكب مع الكبسولة`);\n  });\n  if (clips.length) return { pass: false, detail: clips.join(' · ') };\n  if (hairs.length) return { pass: false, warn: true, detail: hairs.join(' · ') };\n  return { pass: true, detail: `${vis.length} بطاقة سليمة` };\n})()"
+        },
+        {
+          "name": "بطاقات D3 كلها داخل العرض (لا قصّ أفقي)",
+          "js": "(() => { const cs = [...document.querySelectorAll('.p6-d3-column')]; const bad = cs.filter(c => { const r = c.getBoundingClientRect(); return r.left < -1 || r.right > innerWidth + 1; }); return { pass: cs.length > 0 && bad.length === 0, detail: `${bad.length} من ${cs.length} بطاقة خارج العرض` }; })()"
+        },
+        {
+          "name": "شريط المعلم ظاهر كاملاً داخل نافذة العرض",
+          "js": "(() => { const b = document.querySelector('.p6-teacher-bar'); if (!b) return { pass: false, detail: 'غير موجود' }; const r = b.getBoundingClientRect(); return { pass: r.bottom <= innerHeight + 1 && r.height > 20, detail: `bottom=${Math.round(r.bottom)} innerHeight=${innerHeight}` }; })()"
+        },
+        {
+          "name": "لا تجاوز أفقي للصفحة (overflow-x)",
+          "js": "(() => { const d = document.documentElement; return { pass: d.scrollWidth <= d.clientWidth + 1, detail: `scrollWidth=${d.scrollWidth} clientWidth=${d.clientWidth}` }; })()"
+        },
+        {
+          "name": "منطقة المحتوى لا تُمرَّر رأسياً (لا تمرير)",
+          "js": "(() => { const cz = document.getElementById('content-zone'); if (!cz) return { pass: false, detail: 'غير موجودة' }; return { pass: cz.scrollHeight <= cz.clientHeight + 1, detail: `scroll=${cz.scrollHeight} client=${cz.clientHeight}` }; })()"
+        },
+        {
+          "name": "الصفحة لا تُمرَّر رأسياً",
+          "js": "(() => { const d = document.documentElement; return { pass: d.scrollHeight <= d.clientHeight + 1, detail: `scroll=${d.scrollHeight} client=${d.clientHeight}` }; })()"
+        }
+      ]
+    },
+    {
+      "name": "p6-d3-lesson-01",
+      "title": "الدرس ١ · P6 · الأصوات المتقاربة — تحقق عرضي",
+      "url": "lecture.html?lesson=01",
+      "steps": [
+        "goToPhase(5)",
+        "(async () => { const wait = ms => new Promise(r => setTimeout(r, ms)); for (let i = 0; i < 6; i++) { const b = document.querySelector('.p6-stepper-btn'); if (!b) break; const t = (b.textContent || ''); b.click(); if (t.includes('ابدأ النشاط')) break; await wait(140); } return { demoMode: STATE.p6DemoMode }; })()",
+        {
+          "clickText": {
+            "sel": ".p6-round-btn",
+            "text": "الأصوات المتقاربة"
+          }
+        },
+        {
+          "click": ".p6-reveal-btn"
+        },
+        {
+          "click": ".p6-next-btn"
+        },
+        {
+          "click": ".p6-next-btn"
+        }
+      ],
+      "settleMs": 700,
+      "checks": [
+        {
+          "name": "الحالة المطلوبة بلغت (D3 مكشوف بالكامل — ٣ بطاقات)",
+          "js": "({ pass: STATE.p6DemoMode === false && STATE.p6AnswerVisible === true && STATE.p6RevealStep >= 3, detail: `demo=${STATE.p6DemoMode} visible=${STATE.p6AnswerVisible} step=${STATE.p6RevealStep}` })"
+        },
+        {
+          "name": "كبسولة الاسم/الرمز الصوتي: نص كامل بلا اقتطاع ولا تراكب",
+          "js": "(() => {\n  const cards = [...document.querySelectorAll('.p6-d3-reveal-card')];\n  const vis = cards.filter(c => { const a = c.querySelector('.p6-d3-card-answer'); return a && Number(getComputedStyle(a).opacity) > 0.9; });\n  if (!vis.length) return { pass: false, detail: 'لا بطاقة مكشوفة للقياس — السيناريو لم يصل إلى الحالة المطلوبة' };\n  const clips = [], hairs = [];\n  vis.forEach((c, i) => {\n    const pill = c.querySelector('.p6-d3-lc-name'), glyph = c.querySelector('.p6-d3-lc-char');\n    const cs = getComputedStyle(c), cr = c.getBoundingClientRect();\n    if (!pill) { clips.push(`#${i + 1} لا كبسولة`); return; }\n    const txt = pill.textContent.trim();\n    const clipTop = cr.top + parseFloat(cs.borderTopWidth);\n    const clipBottom = cr.bottom - parseFloat(cs.borderBottomWidth);\n    const pr = pill.getBoundingClientRect();\n    if (pill.scrollHeight > pill.clientHeight + 2) clips.push(`#${i + 1} «${txt}» مقصوص رأسياً: ${pill.clientHeight}px ظاهر من ${pill.scrollHeight}px`);\n    if (pill.scrollWidth > pill.clientWidth + 1) clips.push(`#${i + 1} «${txt}» مقصوص أفقياً`);\n    const over = Math.max(pr.bottom - clipBottom, clipTop - pr.top);\n    if (over > 2) clips.push(`#${i + 1} الكبسولة خارج منطقة البطاقة بمقدار ${over.toFixed(1)}px`);\n    else if (over > 0) hairs.push(`#${i + 1} تجاوز شعري ${over.toFixed(1)}px`);\n    if (glyph && glyph.getBoundingClientRect().bottom > pr.top + 1) clips.push(`#${i + 1} الحرف يتراكب مع الكبسولة`);\n  });\n  if (clips.length) return { pass: false, detail: clips.join(' · ') };\n  if (hairs.length) return { pass: false, warn: true, detail: hairs.join(' · ') };\n  return { pass: true, detail: `${vis.length} بطاقة سليمة` };\n})()"
+        },
+        {
+          "name": "منطقة المحتوى لا تُمرَّر رأسياً (لا تمرير)",
+          "js": "(() => { const cz = document.getElementById('content-zone'); if (!cz) return { pass: false, detail: 'غير موجودة' }; return { pass: cz.scrollHeight <= cz.clientHeight + 1, detail: `scroll=${cz.scrollHeight} client=${cz.clientHeight}` }; })()"
+        },
+        {
+          "name": "الصفحة لا تُمرَّر رأسياً",
+          "js": "(() => { const d = document.documentElement; return { pass: d.scrollHeight <= d.clientHeight + 1, detail: `scroll=${d.scrollHeight} client=${d.clientHeight}` }; })()"
+        }
+      ]
+    },
+    {
+      "name": "p6-d2-same-or-diff",
+      "title": "الدرس ٣ · P6 · نفس أم مختلف؟",
+      "url": "lecture.html?lesson=03",
+      "steps": [
+        "goToPhase(5)",
+        "(async () => { const wait = ms => new Promise(r => setTimeout(r, ms)); for (let i = 0; i < 6; i++) { const b = document.querySelector('.p6-stepper-btn'); if (!b) break; const t = (b.textContent || ''); b.click(); if (t.includes('ابدأ النشاط')) break; await wait(140); } return { demoMode: STATE.p6DemoMode }; })()",
+        {
+          "clickText": {
+            "sel": ".p6-round-btn",
+            "text": "نفس أم مختلف"
+          }
+        },
+        {
+          "click": ".p6-reveal-btn"
+        }
+      ],
+      "settleMs": 600,
+      "checks": [
+        {
+          "name": "منطقة الجواب ظهرت فعلاً",
+          "js": "(() => { const z = document.querySelector('.p6-answer-d2'); if (!z) return { pass: false, detail: 'غير موجودة' }; return { pass: Number(getComputedStyle(z).opacity) > 0.9, detail: `opacity=${getComputedStyle(z).opacity}` }; })()"
+        },
+        {
+          "name": "لا تجاوز أفقي للصفحة (overflow-x)",
+          "js": "(() => { const d = document.documentElement; return { pass: d.scrollWidth <= d.clientWidth + 1, detail: `scrollWidth=${d.scrollWidth} clientWidth=${d.clientWidth}` }; })()"
+        }
+      ]
+    },
+    {
+      "name": "p6-d3-before-fix-repro",
+      "title": "إعادة إنتاج العطل القديم (حقن قواعد CSS ما قبل الإصلاح) — تفشل عمداً",
+      "skipByDefault": true,
+      "url": "lecture.html?lesson=01",
+      "steps": [
+        "goToPhase(5)",
+        "(async () => { const wait = ms => new Promise(r => setTimeout(r, ms)); for (let i = 0; i < 6; i++) { const b = document.querySelector('.p6-stepper-btn'); if (!b) break; const t = (b.textContent || ''); b.click(); if (t.includes('ابدأ النشاط')) break; await wait(140); } return { demoMode: STATE.p6DemoMode }; })()",
+        "(() => { const st = document.createElement('style'); st.id = 'repro-old-d3-css'; st.textContent = '.p6-d3-lc-name{flex:1 1 auto !important;line-height:normal !important}' + '@media (max-height:720px){.p6-d3-reveal-card,.p6-d3-letter-card{min-height:clamp(90px,14vh,140px) !important}}' + '@media (max-height:640px){.p6-d3-reveal-card,.p6-d3-letter-card{min-block-size:clamp(6.4rem,18vh,7rem) !important}}'; document.head.appendChild(st); return 'injected-old-css'; })()",
+        {
+          "clickText": {
+            "sel": ".p6-round-btn",
+            "text": "الأصوات المتقاربة"
+          }
+        },
+        {
+          "click": ".p6-reveal-btn"
+        },
+        {
+          "click": ".p6-next-btn"
+        },
+        {
+          "click": ".p6-next-btn"
+        }
+      ],
+      "settleMs": 700,
+      "checks": [
+        {
+          "name": "كبسولة الاسم/الرمز الصوتي: نص كامل بلا اقتطاع ولا تراكب",
+          "js": "(() => {\n  const cards = [...document.querySelectorAll('.p6-d3-reveal-card')];\n  const vis = cards.filter(c => { const a = c.querySelector('.p6-d3-card-answer'); return a && Number(getComputedStyle(a).opacity) > 0.9; });\n  if (!vis.length) return { pass: false, detail: 'لا بطاقة مكشوفة للقياس — السيناريو لم يصل إلى الحالة المطلوبة' };\n  const clips = [], hairs = [];\n  vis.forEach((c, i) => {\n    const pill = c.querySelector('.p6-d3-lc-name'), glyph = c.querySelector('.p6-d3-lc-char');\n    const cs = getComputedStyle(c), cr = c.getBoundingClientRect();\n    if (!pill) { clips.push(`#${i + 1} لا كبسولة`); return; }\n    const txt = pill.textContent.trim();\n    const clipTop = cr.top + parseFloat(cs.borderTopWidth);\n    const clipBottom = cr.bottom - parseFloat(cs.borderBottomWidth);\n    const pr = pill.getBoundingClientRect();\n    if (pill.scrollHeight > pill.clientHeight + 2) clips.push(`#${i + 1} «${txt}» مقصوص رأسياً: ${pill.clientHeight}px ظاهر من ${pill.scrollHeight}px`);\n    if (pill.scrollWidth > pill.clientWidth + 1) clips.push(`#${i + 1} «${txt}» مقصوص أفقياً`);\n    const over = Math.max(pr.bottom - clipBottom, clipTop - pr.top);\n    if (over > 2) clips.push(`#${i + 1} الكبسولة خارج منطقة البطاقة بمقدار ${over.toFixed(1)}px`);\n    else if (over > 0) hairs.push(`#${i + 1} تجاوز شعري ${over.toFixed(1)}px`);\n    if (glyph && glyph.getBoundingClientRect().bottom > pr.top + 1) clips.push(`#${i + 1} الحرف يتراكب مع الكبسولة`);\n  });\n  if (clips.length) return { pass: false, detail: clips.join(' · ') };\n  if (hairs.length) return { pass: false, warn: true, detail: hairs.join(' · ') };\n  return { pass: true, detail: `${vis.length} بطاقة سليمة` };\n})()"
+        }
+      ]
+    }
+  ]
+}
