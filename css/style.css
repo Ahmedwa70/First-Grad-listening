@@ -4303,6 +4303,13 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   max-width: calc(100% - 0.6rem);
   font-size: clamp(0.76rem, 1.35vw, 1rem);
   font-weight: 700;
+  /* كبسولة البيانات (الاسم + الرمز الصوتي): لا تُضغط ولا تُشوَّه.
+     flex-shrink الافتراضي (1) كان يسحقها داخل الطبقة المطلقة عند ضيق ارتفاع
+     البطاقة، فيُقصّ نصّها من الداخل بينما يبقى صندوقها داخل الحدود.
+     وline-height الافتراضي في Noto Naskh (≈1.87) يضخّمها بلا داعٍ فيأكل
+     ارتفاع البطاقة المخصص للحرف. */
+  flex: 0 0 auto;
+  line-height: 1.35;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -6279,8 +6286,10 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
   }
   .p6-play-pill { flex: 0 0 44px; width: 44px; height: 44px; min-height: 44px; }
   .p6-cmp-play { flex: 0 0 46px; width: 46px; height: 46px; min-height: 46px; }
-  .p6-d3-reveal-card,
-  .p6-d3-letter-card { min-height: clamp(90px, 14vh, 140px); }
+  /* لا تُخفَّض أرضية بطاقة D3 هنا: كان 14vh يجعل البطاقة (94px عند ارتفاع
+     672px) أقصر من محتواها الفعلي (الحرف + كبسولة الاسم ≈ 110px) فيُقصّ
+     النص. تبقى أرضية نطاق 800px (110px) حاكمةً، ويُوفَّر الارتفاع من حجم
+     الحرف وحده — وهو ما تفعله القاعدة التالية. */
   .p6-d3-lc-char { font-size: clamp(2.5rem, 4.5vw, 3.5rem); }
   .p6-d3-column { grid-template-rows: 42px auto; }
   .p6-d3-column .p6-sim-play { width: 38px; height: 38px; min-height: 38px; flex-basis: 38px; margin-bottom: 4px; }
@@ -7847,7 +7856,10 @@ html:not([data-theme="light"]) #content-zone:has(.p2-container)::before {
 @media (max-height: 640px) {
   .p6-d3-reveal-card,
   .p6-d3-letter-card {
-    min-block-size: clamp(6.4rem, 18vh, 7rem);
+    /* أرضية موحّدة مع بقية الأنماط القصيرة: 110px تكفي الحرف + كبسولة الاسم
+       المنظَّمة (line-height: 1.35) دون قصّ. القيمة القديمة (102.4px عند
+       ارتفاع 560px) كانت تقصّ الكبسولة على الشاشات الأقصر من 640px. */
+    min-block-size: clamp(110px, 18vh, 7rem);
     padding-block: clamp(0.45rem, 1vh, 0.6rem);
   }
 
