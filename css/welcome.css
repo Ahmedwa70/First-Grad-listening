@@ -319,6 +319,10 @@
 .wel-footer-ornament { display: block; color: var(--gold); opacity: 0.4; margin-block-end: 0.45rem; letter-spacing: 0.3em; }
 
 /* الإطار القارئ — موجود ولا يُرى */
+/* حاوية قُرّاء الدروس — ستّة عشر إطاراً تنطلق معاً ثم تُزال.
+   الأُطر نفسها مثبّتة خارج الشاشة، والحاوية تضمن ألّا تؤثّر في
+   التخطيط ولو تغيّر وضع الإطار لاحقاً. */
+.wel-readers { position: fixed; inset-block-start: -9999px; inline-size: 1px; block-size: 1px; overflow: hidden; pointer-events: none; }
 .wel-reader { position: fixed; inset-block-start: -9999px; inline-size: 1px; block-size: 1px; border: 0; opacity: 0; pointer-events: none; }
 
 /* ── شاشات العرض الكبيرة ────────────────────────────────────── */
