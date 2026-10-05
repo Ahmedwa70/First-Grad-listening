@@ -130,26 +130,16 @@
           aria-label="تراجع للخطوة السابقة">
           → تراجع
         </button>
-        <button class="main-btn advance" onclick="advance()" title="تقدم (Space أو →)"
-          aria-label="التقدم للخطوة التالية">
-          تقدم ←
-        </button>
       </div>
 
       <div class="hint-zone" id="hint-zone" aria-live="polite">
         <!-- التلميح الديناميكي يظهر هنا -->
       </div>
 
-      <!-- زر الانتباه أصبح أساسياً في Teacher HUD أعلى الصفحة (◎).
-         أُبقي هذا الزر في الـHTML للتوافق كما طُلب، وأُخفي بصرياً
-         فقط عبر CSS (class="hud-duplicate-hidden") لمنع ازدواج
-         الظهور دون حذف العنصر أو تعديل app.js. -->
-      <div class="main-controls hud-duplicate-hidden">
-        <button class="main-btn attention" onclick="toggleAttentionMode()" title="استعادة الانتباه (A)"
-          aria-label="وضع استعادة انتباه الطلاب">
-          ◎ انتباه
+        <button class="main-btn advance" onclick="advance()" title="تقدم (Space أو →)"
+          aria-label="التقدم للخطوة التالية">
+          تقدم ←
         </button>
-      </div>
     </footer>
 
     <!-- ── شريط التقدم ────────────────────────────────────────── -->
