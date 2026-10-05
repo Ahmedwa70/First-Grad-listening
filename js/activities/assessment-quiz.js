@@ -139,7 +139,7 @@ function p7BuildCardContent(round, item, letter) {
   if (round.type === 'show-letter') {
     answer = `<div class="p7-answer-capsule"><span>${letter.name} &bull; ${letter.phoneme}</span><button class="p7-replay-btn" onclick="p7PlaySound('${item.letterId}', this)" style="--sound-color:${letter.color}" aria-label="إعادة الاستماع"><span aria-hidden="true">🔊</span></button></div>`;
   } else if (round.type === 'count-dots') {
-    const dotLabels = { 1: 'نقطة واحدة', 2: 'نقطتان', 3: 'ثلاث نقاط' };
+    const dotLabels = { 0: 'لا نقاط', 1: 'نقطة واحدة', 2: 'نقطتان', 3: 'ثلاث نقاط' };
     const dotVisual = Array.from({ length: letter.dots }, () => '<span aria-hidden="true">●</span>').join('');
     const isBelow = letter.dotPosition === 'أسفل';
     const positionArrow = isBelow ? '⬇' : '⬆';
