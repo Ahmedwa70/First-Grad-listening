@@ -158,14 +158,14 @@ const LESSON = {
       color:   '#1F618D',
     },
     {
-      id:      'asal',
-      word:    'عَسَلٌ',
-      meaning: 'عسل (honey)',
+      id:      'samaa',
+      word:    'سَمَاءٌ',
+      meaning: 'سماء (sky)',
       targetLetterId: 'seen',
-      targetPositions: [1],
-      chars:   ['ع', 'س', 'ل'],
-      audioText: 'عَسَلٌ',
-      audioFile: 'assets/audio/word_asal.mp3',
+      targetPositions: [0],
+      chars:   ['س', 'م', 'ا', 'ء'],
+      audioText: 'سَمَاءٌ',
+      audioFile: 'assets/audio/word_samaa.mp3',
       color:   '#1F618D',
     },
     {
@@ -217,7 +217,7 @@ const LESSON = {
   // ─── P5 — البيانات الإضافية للكلمات ─────────────────────────
   p5WordMeta: {
     samaka: { emoji: '🐟', zh: '鱼' },
-    asal:   { emoji: '🍯', zh: '蜂蜜' },
+    samaa:  { emoji: '☁️', zh: '天空' },
     shama:  { emoji: '🕯️', zh: '蜡烛' },
     farasha: { emoji: '🦋', zh: '蝴蝶' },
     sayf:   { emoji: '☀️', zh: '夏天' },
@@ -525,7 +525,7 @@ const LESSON = {
       title:    'الحروف في الكلمات',
       duration: '٦٠ — ٨٠ دقيقة',
       goal:     'ربط الحرف المعزول بموضعه داخل كلمات حقيقية بسيطة',
-      wordOrder: ['samaka', 'asal', 'shama', 'farasha', 'sayf', 'sadiq'],
+      wordOrder: ['samaka', 'samaa', 'shama', 'farasha', 'sayf', 'sadiq'],
     },
 
     // ════════════════════════════════════
