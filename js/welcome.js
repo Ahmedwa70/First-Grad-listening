@@ -167,13 +167,9 @@ const Welcome = {
     if (!btn) return;
     btn.addEventListener('click', () => {
       const html = document.documentElement;
-      if (html.dataset.theme === 'light') {
-        html.removeAttribute('data-theme');
-        try { localStorage.removeItem('lesson-theme'); } catch (e) {}
-      } else {
-        html.dataset.theme = 'light';
-        try { localStorage.setItem('lesson-theme', 'light'); } catch (e) {}
-      }
+      const next = html.dataset.theme === 'light' ? 'dark' : 'light';
+      html.dataset.theme = next;
+      try { localStorage.setItem('lesson-theme', next); } catch (e) {}
       this._syncTheme();
     });
     this._syncTheme();

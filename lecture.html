@@ -18,7 +18,7 @@
        البيانات: js/lesson-XX.js | المحرّك: js/app.js | الأنشطة: js/activities/
        الخطوط: assets/fonts/ | الصوت: assets/audio/ | لا إنترنت مطلوب -->
 
-  <script>try{var t=localStorage.getItem('lesson-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem('lesson-theme')||'light'}catch(e){document.documentElement.dataset.theme='light'}</script>
   <link rel="stylesheet" href="css/style.css" />
   <!-- طبقة الاستجابة المركزية لـ v1.1: تحميلها أخيراً لتوحيد ميزانية العرض دون تغيير المنطق. -->
   <link rel="stylesheet" href="css/responsive-system-v1.1.css" />
@@ -41,6 +41,8 @@
 
       <!-- المنطقة اليمنى: رقم المرحلة + عنوان مختصر فقط -->
       <div class="hud-phase">
+        <!-- الشعار قبل رقم المرحلة وبحجمه: جزء من الشريط لا طبقة فوقه. -->
+        <img src="assets/fusaha-logo.png" alt="فُصَحَاء" class="fusaha-hud-logo" />
         <span class="phase-id-badge" id="phase-title">P1</span>
         <span class="phase-title-text" id="phase-title-text">افتتاح الدرس</span>
       </div>

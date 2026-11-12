@@ -12,7 +12,7 @@
   <meta name="description" content="حالة اكتمال دروس الاستماع — نظام التدريس التفاعلي" />
 
   <!-- الوضع الليلي/النهاري مشترك مع المحاضرات: نفس المفتاح، نفس السلوك. -->
-  <script>try{var t=localStorage.getItem('lesson-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem('lesson-theme')||'light'}catch(e){document.documentElement.dataset.theme='light'}</script>
 
   <!-- style.css هو مصدر الهوية: الخطوط ورموز الألوان والوضعان.
        لوحة التحكم تستهلكها ولا تعيد تعريفها، فتبقى الواجهتان مشروعاً واحداً. -->
