@@ -853,7 +853,10 @@ function closeTeacherHelpPanel() {
 function goToPhase(index, options = {}) {
   // Phase navigation is a lifecycle boundary: never carry teacher-panel UI into a new phase.
   closeTeacherHelpPanel();
-  if (STATE.currentPhaseIndex === 5 && index !== 5) p6DisposeD2Activity();
+  if (STATE.currentPhaseIndex === 5 && index !== 5) { p6DisposeD2Activity(); p5ClearAssessSlot(); }
+  if (STATE.currentPhaseIndex === 6 && index !== 6) p5ClearAssessSlot();
+  if (STATE.currentPhaseIndex === 4 && index !== 4) p5ClearAssessSlot();
+  if (STATE.currentPhaseIndex === 2 && index !== 2) p5ClearAssessSlot();
   // مسار الدخول للمرحلة: 'sequential' عند التقدّم من المرحلة السابقة،
   // و'direct' عند الاختيار من الشريط العلوي أو اختصارات الأرقام.
   STATE.p4EntryMode = options.sequential ? 'sequential' : 'direct';

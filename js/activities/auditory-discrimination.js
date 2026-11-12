@@ -630,7 +630,7 @@ function renderP6() {
         ${itemHTML}
       </div>
       <div class="p6-controls">
-        <div class="p6-counter">
+        <div class="p6-counter" id="p6-progress-counter">
           ${progressDots(STATE.p6PairIndex, items.length)}
         </div>
         <button class="p6-reveal-btn ${STATE.p6AnswerVisible ? 'hidden' : ''}"
@@ -651,6 +651,22 @@ function renderP6() {
       <span>${round.instruction}</span>
     </div>
   `;
+
+  // نقل العداد إلى شريط التحكم السفلي (نفس slot تقييم P5 وP3)
+  const p6Slot = document.getElementById('p5-assess-slot');
+  const p6Counter = document.getElementById('p6-progress-counter');
+  if (p6Slot && p6Counter) {
+    p6Slot.replaceChildren();
+    p6Slot.appendChild(p6Counter);
+    // نقاط قابلة للنقر — تنتقل مباشرة إلى العنصر المقابل (نفس آلية advanceP6).
+    // التفويض على الحاوية لا على النقاط نفسها، لأن التحديث الموضعي يستبدل النقاط بـ innerHTML.
+    p6Counter.addEventListener('click', (e) => {
+      const dot = e.target.closest('.p6-dot');
+      if (!dot || !p6Counter.contains(dot)) return;
+      const idx = Array.from(p6Counter.querySelectorAll('.p6-dot')).indexOf(dot);
+      if (idx >= 0) p6GoToItem(idx);
+    });
+  }
 
   updateHint('');
 }
@@ -695,7 +711,7 @@ function p6RenderCurrentItemInPlace() {
   const revealBtn = container.querySelector('.p6-reveal-btn');
   const actionRow = container.querySelector('.p6-action-row');
   const nextBtn = container.querySelector('.p6-next-btn');
-  const counter = container.querySelector('.p6-counter');
+  const counter = document.getElementById('p6-progress-counter');
   if (counter) counter.innerHTML = progressDots(STATE.p6PairIndex, items.length);
   if (revealBtn) {
     revealBtn.classList.remove('hidden');
@@ -716,6 +732,18 @@ function p6GoRound(i) {
   STATE.p6RevealStep    = 0;
   STATE.p6SoundPlayed   = false;
   renderP6();
+}
+
+// الانتقال المباشر إلى عنصر محدد عند النقر على نقطته — نفس مقاييس كتلة الانتقال في advanceP6.
+function p6GoToItem(i) {
+  const round = getCurrentP6Round();
+  const items = round.pairs || round.triplets || [];
+  if (i === STATE.p6PairIndex || i < 0 || i >= items.length) return;
+  STATE.p6AnswerVisible = false;
+  STATE.p6RevealStep    = 0;
+  STATE.p6PairIndex     = i;
+  STATE.p6SoundPlayed   = false;
+  if (!p6RenderCurrentItemInPlace()) renderP6();
 }
 
 function p6MarkResponse(outcome) {

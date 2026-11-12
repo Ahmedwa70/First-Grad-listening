@@ -30,11 +30,13 @@ function renderP3() {
   if (!container) return;
 
   if (STATE.p3ViewMode === 'quad') {
+    p5ClearAssessSlot();
     renderP3Quad(container);
     return;
   }
 
   if (STATE.p3ViewMode === 'assess') {
+    p5ClearAssessSlot();
     renderP3Assess(container);
     return;
   }
@@ -45,7 +47,7 @@ function renderP3() {
 
   container.innerHTML = `
     <div class="p3-header">
-      <div class="p6-counter">
+      <div class="p6-counter" id="p3-counter">
         ${progressDots(STATE.p3LetterIndex, phase.letterOrder.length)}
       </div>
       <p class="p3-instruction">اضغط Space لكشف معلومات الحرف تدريجياً</p>
@@ -96,6 +98,18 @@ function renderP3() {
       }
     </div>
   `;
+
+  // نقل العداد إلى شريط التحكم السفلي (نفس slot تقييم P5)
+  const p3Slot = document.getElementById('p5-assess-slot');
+  const p3Counter = document.getElementById('p3-counter');
+  if (p3Slot && p3Counter) {
+    p3Slot.replaceChildren();
+    p3Slot.appendChild(p3Counter);
+    // نقاط قابلة للنقر — تنتقل مباشرة إلى الحرف المقابل (نفس آلية التالي/السابق)
+    p3Counter.querySelectorAll('.p6-dot').forEach((dot, i) => {
+      dot.addEventListener('click', () => p3GoToLetter(i));
+    });
+  }
 
   renderP3Card();
 }
@@ -159,6 +173,19 @@ function advanceP3() {
   }
 }
 
+// الانتقال المباشر إلى حرف محدد عند النقر على نقطته — نفس آلية p3NextLetter/p3PrevLetter.
+function p3GoToLetter(i) {
+  if (i === STATE.p3LetterIndex) return;
+  if (i > STATE.p3LetterIndex) {
+    STATE.p3LetterIndex = i;
+    STATE.p3RevealStep = -1;
+  } else {
+    STATE.p3LetterIndex = i;
+    STATE.p3RevealStep = 3;
+  }
+  renderP3();
+}
+
 function p3NextLetter() {
   const phase = LESSON.phases.find(p => p.id === 'P3');
   if (STATE.p3LetterIndex < phase.letterOrder.length - 1) {
@@ -179,6 +206,7 @@ function p3PrevLetter() {
 
 function p3ShowQuad() {
   STATE.p3ViewMode = 'quad';
+  p5ClearAssessSlot();
   const container = document.getElementById('p3-container');
   if (container) renderP3Quad(container);
   updateHint('عرض مقارن للحروف الأربعة — اضغط Space للتقييم السريع');

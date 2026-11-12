@@ -90,6 +90,8 @@ function renderP5() {
   if (!container) return;
   const phase  = LESSON.phases.find(p => p.id === 'P5');
 
+  if (STATE.p5ViewMode !== 'assess') p5ClearAssessSlot();
+
   if (STATE.p5ViewMode === 'quad') {
     renderP5Quad(container);
     return;
@@ -109,7 +111,7 @@ function renderP5() {
 
   container.innerHTML = `
     <div class="p5-header">
-      <div class="p6-counter">
+      <div class="p6-counter" id="p5-main-counter">
         ${progressDots(STATE.p5WordIndex, phase.wordOrder.length)}
       </div>
     </div>
@@ -143,15 +145,10 @@ function renderP5() {
         <div class="p5-zone-word">
           <div class="p5-block reveal-block" id="p5-context">
             <span class="p5-hero-emoji">${meta.emoji || '🔤'}</span>
-            <div class="p5-word-display">
-              ${word.chars.map((ch, i) => {
+            <div class="p5-word-display">${word.chars.map((ch, i) => {
                 const isTarget = displayPos.includes(i);
-                return `<span class="p5-char ${isTarget ? 'p5-target-char' : ''}"
-                  ${isTarget ? `style="--tc:${word.color}"` : ''}>
-                  ${ch}
-                </span>`;
-              }).join('')}
-            </div>
+                return `<span class="p5-char ${isTarget ? 'p5-target-char' : ''}"${isTarget ? ` style="--tc:${word.color}"` : ''}>${ch}</span>`;
+              }).join('')}</div>
             <div class="p5-meaning-caption">
               <span class="p5-meaning-text">${word.meaning.replace(/\s*\(.*?\)\s*$/, '')}</span>
               ${meta.zh ? `<span class="p5-meaning-zh secondary-language">${meta.zh}</span>` : ''}
@@ -193,6 +190,18 @@ function renderP5() {
         : `<button class="nav-btn success" onclick="p5ShowQuad()">مراجعة الكلمات ←</button>`}
     </div>
   `;
+
+  // نقل العداد إلى شريط التحكم السفلي (نفس slot التقييم والمراحل الأخرى)
+  const p5Slot = document.getElementById('p5-assess-slot');
+  const p5MainCounter = document.getElementById('p5-main-counter');
+  if (p5Slot && p5MainCounter) {
+    p5Slot.replaceChildren();
+    p5Slot.appendChild(p5MainCounter);
+    // نقاط قابلة للنقر — تنتقل مباشرة إلى الكلمة المقابلة (نفس آلية التالي/السابق)
+    p5MainCounter.querySelectorAll('.p6-dot').forEach((dot, i) => {
+      dot.addEventListener('click', () => p5GoToWord(i));
+    });
+  }
 
   renderP5Card();
 
@@ -336,6 +345,38 @@ function p5PrevWord() {
   }
 }
 
+// الانتقال المباشر إلى كلمة محددة عند النقر على نقطتها — نفس آلية p5TransitionWord/p5PrevWord.
+function p5GoToWord(i) {
+  if (i === STATE.p5WordIndex || _p5Transitioning) return;
+  if (i > STATE.p5WordIndex) {
+    p5TransitionWord(i);
+    return;
+  }
+  _p5Transitioning = true;
+  const card = document.querySelector('.p5-card');
+  if (!card) {
+    STATE.p5WordIndex = i;
+    STATE.p5RevealStep = LESSON.p5RevealSteps.length - 1;
+    renderP5();
+    _p5Transitioning = false;
+    return;
+  }
+  card.classList.add('p5-exit-right');
+  setTimeout(() => {
+    STATE.p5WordIndex = i;
+    STATE.p5RevealStep = LESSON.p5RevealSteps.length - 1;
+    renderP5();
+    const newCard = document.querySelector('.p5-card');
+    if (newCard) {
+      newCard.classList.add('p5-enter-right');
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => newCard.classList.remove('p5-enter-right'));
+      });
+    }
+    _p5Transitioning = false;
+  }, 280);
+}
+
 // ── P5 Quad View ────────────────────────────────────────
 function p5ShowQuad() {
   STATE.p5ViewMode = 'quad';
@@ -361,12 +402,7 @@ function renderP5Quad(container) {
       ${allWords.map(w => `
         <div class="p5-quad-card" style="--card-color:${w.color}">
           <span class="p5-quad-emoji">${w.meta.emoji || ''}</span>
-          <div class="p5-quad-word" dir="rtl">
-            ${w.chars.map((ch, i) => `
-              <span class="${w.dp.includes(i) ? 'p5-quad-target' : ''}"
-                style="${w.dp.includes(i) ? 'color:' + w.color : ''}">${ch}</span>
-            `).join('')}
-          </div>
+          <div class="p5-quad-word" dir="rtl">${w.chars.map((ch, i) => `<span class="${w.dp.includes(i) ? 'p5-quad-target' : ''}"${w.dp.includes(i) ? ` style="color:${w.color}"` : ''}>${ch}</span>`).join('')}</div>
           <span class="p5-quad-letter" style="color:${w.color}">${w.letter.char} ${w.letter.name}</span>
           <span class="p5-quad-meaning">${w.meaning.replace(/\s*\(.*?\)\s*$/, '')}</span>
           ${w.meta.zh ? `<span class="p5-quad-zh secondary-language">${w.meta.zh}</span>` : ''}
@@ -382,6 +418,20 @@ function renderP5Quad(container) {
 }
 
 // ── P5 Micro-Assessment ─────────────────────────────────
+// إفراغ slot العداد في شريط التحكم — يُستدعى عند مغادرة وضع التقييم أو المرحلة.
+function p5ClearAssessSlot() {
+  const slot = document.getElementById('p5-assess-slot');
+  if (slot) slot.replaceChildren();
+}
+
+// الانتقال المباشر إلى سؤال محدد عند النقر على نقطته — نفس آلية advanceP5Assess.
+function p5GoToAssess(i) {
+  if (i === STATE.p5AssessIndex) return;
+  STATE.p5AssessIndex = i;
+  STATE.p5AssessRevealed = false;
+  renderP5();
+}
+
 function p5StartAssess() {
   STATE.p5ViewMode = 'assess';
   STATE.p5AssessIndex = 0;
@@ -413,7 +463,7 @@ function renderP5Assess(container) {
 
   container.innerHTML = `
     <div class="p5-assess-header">
-      <div class="p6-counter">${progressDots(STATE.p5AssessIndex, total)}</div>
+      <div class="p6-counter" id="p5-assess-counter">${progressDots(STATE.p5AssessIndex, total)}</div>
       <h2 class="p5-assess-title">استمع واختر الكلمة</h2>
       <p class="p5-assess-subtitle">شغّل الصوت — الطلاب يرفعون أصابعهم</p>
     </div>
@@ -438,6 +488,18 @@ function renderP5Assess(container) {
       <button class="ctrl-btn" onclick="p5SkipAssess()">تخطّي التقييم ←</button>
     </div>
   `;
+
+  // نقل العداد إلى شريط التحكم السفلي (منتصف Footer بين تقدم وتراجع)
+  const assessSlot = document.getElementById('p5-assess-slot');
+  const assessCounter = document.getElementById('p5-assess-counter');
+  if (assessSlot && assessCounter) {
+    assessSlot.replaceChildren();
+    assessSlot.appendChild(assessCounter);
+    // نقاط قابلة للنقر — تنتقل مباشرة إلى السؤال المقابل
+    assessCounter.querySelectorAll('.p6-dot').forEach((dot, i) => {
+      dot.addEventListener('click', () => p5GoToAssess(i));
+    });
+  }
 
   if (STATE.p5AssessRevealed) {
     updateHint(`الإجابة: ${target.word} — الحرف: ${targetLetter.char} (${targetLetter.name}) — اضغط Space للسؤال التالي`);
