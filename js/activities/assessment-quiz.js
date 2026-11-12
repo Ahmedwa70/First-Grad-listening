@@ -139,7 +139,7 @@ function p7BuildCardContent(round, item, letter) {
   if (round.type === 'show-letter') {
     answer = `<div class="p7-answer-capsule"><span>${letter.name} &bull; ${letter.phoneme}</span><button class="p7-replay-btn" onclick="p7PlaySound('${item.letterId}', this)" style="--sound-color:${letter.color}" aria-label="إعادة الاستماع"><span aria-hidden="true">🔊</span></button></div>`;
   } else if (round.type === 'count-dots') {
-    const dotLabels = { 1: 'نقطة واحدة', 2: 'نقطتان', 3: 'ثلاث نقاط' };
+    const dotLabels = { 0: 'لا نقاط', 1: 'نقطة واحدة', 2: 'نقطتان', 3: 'ثلاث نقاط' };
     const dotVisual = Array.from({ length: letter.dots }, () => '<span aria-hidden="true">●</span>').join('');
     const isBelow = letter.dotPosition === 'أسفل';
     const positionArrow = isBelow ? '⬇' : '⬆';
@@ -181,7 +181,7 @@ function p7BuildHTML(round, item) {
       <section class="p7-assessment-card ${revealed}" data-round="${round.id}">
         ${p7BuildCardContent(round, item, letter)}
       </section>
-      <div class="p6-counter">${progressDots(STATE.p7ItemIndex, round.items.length)}</div>
+      <div class="p6-counter" id="p7-progress-counter">${progressDots(STATE.p7ItemIndex, round.items.length)}</div>
       <div class="p7-controls ${revealed}">
         <button class="p7-primary-btn p7-reveal-btn ${revealed ? 'hidden' : ''}" onclick="advanceP7()">كشف الإجابة <span class="p6-kbd">Space ␣</span></button>
         <button class="p7-primary-btn p7-next-btn ${revealed ? '' : 'hidden'}" onclick="advanceP7()">السؤال التالي ← <span class="p6-kbd">Space ␣</span></button>
@@ -217,7 +217,8 @@ function p7RenderInPlace() {
   if (floatingPrompt) { floatingPrompt.innerHTML = p7BuildQuestionBanner(round, item, letter); }
   if (roundNav) roundNav.innerHTML = LESSON.phases.find(p => p.id === 'P7').roundOrder.map((rid, i) => { const r = LESSON.assessmentRounds.find(x => x.id === rid); return `<button class="p6-round-btn ${i === STATE.p7RoundIndex ? 'active' : ''}" onclick="p7GoRound(${i})">${r.label}</button>`; }).join('');
   if (card) { card.className = `p7-assessment-card ${STATE.p7AnswerVisible ? 'revealed' : ''}`; card.dataset.round = round.id; card.innerHTML = p7BuildCardContent(round, item, letter); }
-  if (shell.querySelector('.p6-counter')) shell.querySelector('.p6-counter').innerHTML = progressDots(STATE.p7ItemIndex, round.items.length);
+  const p7CounterEl = document.getElementById('p7-progress-counter');
+  if (p7CounterEl) p7CounterEl.innerHTML = progressDots(STATE.p7ItemIndex, round.items.length);
   if (controls) controls.classList.toggle('revealed', STATE.p7AnswerVisible);
   if (reveal) { reveal.classList.toggle('hidden', STATE.p7AnswerVisible); reveal.innerHTML = 'كشف الإجابة <span class="p6-kbd">Space ␣</span>'; }
   if (next) { next.classList.toggle('hidden', !STATE.p7AnswerVisible); next.innerHTML = 'السؤال التالي ← <span class="p6-kbd">Space ␣</span>'; }
@@ -228,8 +229,36 @@ function p7RenderInPlace() {
 
 function renderP7() {
   p7RenderInPlace();
+  // نقل العداد إلى شريط التحكم السفلي (نفس slot تقييم P5 وP3 وP6)
+  const p7Slot = document.getElementById('p5-assess-slot');
+  const p7Counter = document.getElementById('p7-progress-counter');
+  if (p7Slot && p7Counter) {
+    p7Slot.replaceChildren();
+    p7Slot.appendChild(p7Counter);
+    // نقاط قابلة للنقر — تنتقل مباشرة إلى السؤال المقابل (نفس آلية advanceP7).
+    // التفويض على الحاوية لا على النقاط نفسها، لأن p7RenderInPlace يستبدل النقاط بـ innerHTML.
+    // الحارس يمنع تراكم المستمعات على العنصر نفسه عبر إعادات الرسم الموضعية.
+    if (!p7Counter.dataset.dotNavBound) {
+      p7Counter.dataset.dotNavBound = '1';
+      p7Counter.addEventListener('click', (e) => {
+        const dot = e.target.closest('.p6-dot');
+        if (!dot || !p7Counter.contains(dot)) return;
+        const idx = Array.from(p7Counter.querySelectorAll('.p6-dot')).indexOf(dot);
+        if (idx >= 0) p7GoToItem(idx);
+      });
+    }
+  }
   // في P7: شريط المعلم داخل المرحلة وزر التحكم المركزي هما مصدر التوجيه الوحيد.
   updateHint('');
+}
+
+// الانتقال المباشر إلى سؤال محدد عند النقر على نقطته — نفس مقاييس كتلة التقدم في advanceP7.
+function p7GoToItem(i) {
+  const round = getCurrentP7Round();
+  if (!round || i === STATE.p7ItemIndex || i < 0 || i >= round.items.length) return;
+  STATE.p7AnswerVisible = false;
+  STATE.p7ItemIndex     = i;
+  renderP7();
 }
 
 function p7GoRound(i) {
@@ -242,6 +271,7 @@ function p7GoRound(i) {
 // الملخص يظهر أولاً — اللافتة تُفعَّل بزر يدوي فقط
 function renderP7Summary() {
   PhaseTimer.stop();
+  p5ClearAssessSlot();
   const container = document.getElementById('p7-container');
   if (!container) return;
 

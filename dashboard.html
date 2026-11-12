@@ -3,11 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="فُصَحَاء" />
+  <meta name="copyright" content="© فُصَحَاء — جميع الحقوق محفوظة" />
+  <meta name="publisher" content="فُصَحَاء — www.fusaha.com" />
+  <meta name="rights" content="يُمنع النسخ أو إعادة النشر أو التوزيع دون إذن كتابي من فُصَحَاء." />
+  <link rel="license" href="https://www.fusaha.com" />
   <title>لوحة التحكم — دروس الاستماع</title>
   <meta name="description" content="حالة اكتمال دروس الاستماع — نظام التدريس التفاعلي" />
 
   <!-- الوضع الليلي/النهاري مشترك مع المحاضرات: نفس المفتاح، نفس السلوك. -->
-  <script>try{var t=localStorage.getItem('lesson-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem('lesson-theme')||'light'}catch(e){document.documentElement.dataset.theme='light'}</script>
 
   <!-- style.css هو مصدر الهوية: الخطوط ورموز الألوان والوضعان.
        لوحة التحكم تستهلكها ولا تعيد تعريفها، فتبقى الواجهتان مشروعاً واحداً. -->
@@ -99,5 +104,6 @@
   <script src="js/dash-store.js"></script>
   <script src="js/dash-upload.js"></script>
   <script src="js/dashboard.js"></script>
+  <script src="js/fusaha-identity.js"></script>
 </body>
 </html>

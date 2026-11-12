@@ -46,7 +46,7 @@ const STATE = {
   audioPlaying: false,
   helpPanelOpen: false,
   // تفضيل عرض عام للمعلم: صالح لأي لغة ثانية، لا للغة بعينها.
-  secondaryLanguageVisible: true,
+  secondaryLanguageVisible: false,
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -540,7 +540,7 @@ const AudioManager = {
   playLetter(letterId) {
     const letter = LESSON.letters.find(l => l.id === letterId);
     if (!letter) return;
-    this.play(letter.audioFile, letter.name, 0.6);
+    this.play(letter.audioFile, letter.audioText || letter.char, 0.6);
     document.querySelectorAll('.audio-indicator').forEach(el => {
       el.classList.add('playing');
       setTimeout(() => el.classList.remove('playing'), 1500);
@@ -668,6 +668,15 @@ function updateProgressRail() {
 
 // تحديث كلا الموقعين معاً: teacher-hint (أعلى) + hint-zone (أسفل)
 function updateHint(text, secondaryText = '') {
+  // النص الصيني قد يصل مدموجاً داخل النص العربي نفسه (hint الخطوة P1-S2).
+  // فيُفصل هنا إلى مسار اللغة الثانية القائم — لا مسار موازٍ، ولا حذف من البيانات.
+  if (!secondaryText && typeof text === 'string') {
+    const zhStart = text.search(/[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/);
+    if (zhStart > 0) {
+      secondaryText = text.slice(zhStart).trim();
+      text = text.slice(0, zhStart).trim();
+    }
+  }
   const updateTarget = target => {
     if (!target) return;
     if (!secondaryText) {
@@ -844,7 +853,10 @@ function closeTeacherHelpPanel() {
 function goToPhase(index, options = {}) {
   // Phase navigation is a lifecycle boundary: never carry teacher-panel UI into a new phase.
   closeTeacherHelpPanel();
-  if (STATE.currentPhaseIndex === 5 && index !== 5) p6DisposeD2Activity();
+  if (STATE.currentPhaseIndex === 5 && index !== 5) { p6DisposeD2Activity(); p5ClearAssessSlot(); }
+  if (STATE.currentPhaseIndex === 6 && index !== 6) p5ClearAssessSlot();
+  if (STATE.currentPhaseIndex === 4 && index !== 4) p5ClearAssessSlot();
+  if (STATE.currentPhaseIndex === 2 && index !== 2) p5ClearAssessSlot();
   // مسار الدخول للمرحلة: 'sequential' عند التقدّم من المرحلة السابقة،
   // و'direct' عند الاختيار من الشريط العلوي أو اختصارات الأرقام.
   STATE.p4EntryMode = options.sequential ? 'sequential' : 'direct';
@@ -1094,13 +1106,8 @@ function toggleTheme() {
   const html = document.documentElement;
   const current = html.dataset.theme || 'dark';
   const next = current === 'dark' ? 'light' : 'dark';
-  if (next === 'dark') {
-    html.removeAttribute('data-theme');
-    try { localStorage.removeItem('lesson-theme'); } catch(e) {}
-  } else {
-    html.dataset.theme = next;
-    try { localStorage.setItem('lesson-theme', next); } catch(e) {}
-  }
+  html.dataset.theme = next;
+  try { localStorage.setItem('lesson-theme', next); } catch(e) {}
   _updateThemeButton(next);
 }
 

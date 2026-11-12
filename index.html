@@ -3,11 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="فُصَحَاء" />
+  <meta name="copyright" content="© فُصَحَاء — جميع الحقوق محفوظة" />
+  <meta name="publisher" content="فُصَحَاء — www.fusaha.com" />
+  <meta name="rights" content="يُمنع النسخ أو إعادة النشر أو التوزيع دون إذن كتابي من فُصَحَاء." />
+  <link rel="license" href="https://www.fusaha.com" />
   <title>حروف العربية — فصحاء</title>
   <meta name="description" content="حروف العربية للناطقين بغيرها — دروس تفاعلية: صوت الحرف ورسمه وموضعه في الكلمة" />
 
   <!-- الوضع الليلي/النهاري مشترك مع الدروس ولوحة التحكم: نفس المفتاح. -->
-  <script>try{var t=localStorage.getItem('lesson-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem('lesson-theme')||'light'}catch(e){document.documentElement.dataset.theme='light'}</script>
 
   <!-- style.css مصدر الهوية: الخطوط ورموز الألوان والوضعان.
        صفحة الدروس تستهلكها ولا تعيد تعريفها — كما تفعل لوحة التحكم. -->
@@ -22,7 +27,11 @@
     <!-- سطر علويّ: المنصّة يميناً ومبدّل الوضع يساراً.
          الزر داخل التخطيط لا طافياً فوقه، فلا يفرض حشواً يتجنّبه. -->
     <div class="wel-topbar">
-      <p class="wel-eyebrow">فصحاء</p>
+      <!-- الشعار واسم المنصّة بترتيب المنصّة نفسه: الشعار ثمّ الاسم. -->
+      <p class="wel-eyebrow fusaha-brand">
+        <img src="assets/fusaha-logo.png" alt="" class="fusaha-brand-logo" />
+        <span class="fusaha-brand-name">فُصَحَاء</span>
+      </p>
 
       <!-- يشارك الدروس ولوحة التحكم مفتاح lesson-theme نفسه،
            فالوضع يتبع الزائر بين الصفحات الثلاث. -->
@@ -94,5 +103,6 @@
   </footer>
 
   <script src="js/welcome.js"></script>
+  <script src="js/fusaha-identity.js"></script>
 </body>
 </html>
