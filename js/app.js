@@ -1106,13 +1106,8 @@ function toggleTheme() {
   const html = document.documentElement;
   const current = html.dataset.theme || 'dark';
   const next = current === 'dark' ? 'light' : 'dark';
-  if (next === 'dark') {
-    html.removeAttribute('data-theme');
-    try { localStorage.removeItem('lesson-theme'); } catch(e) {}
-  } else {
-    html.dataset.theme = next;
-    try { localStorage.setItem('lesson-theme', next); } catch(e) {}
-  }
+  html.dataset.theme = next;
+  try { localStorage.setItem('lesson-theme', next); } catch(e) {}
   _updateThemeButton(next);
 }
 
