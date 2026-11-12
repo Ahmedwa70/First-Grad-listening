@@ -4,6 +4,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="فُصَحَاء" />
+  <meta name="copyright" content="© فُصَحَاء — جميع الحقوق محفوظة" />
+  <meta name="publisher" content="فُصَحَاء — www.fusaha.com" />
+  <meta name="rights" content="يُمنع النسخ أو إعادة النشر أو التوزيع دون إذن كتابي من فُصَحَاء." />
+  <link rel="license" href="https://www.fusaha.com" />
   <!-- القيم أدناه تُستبدل تلقائياً من بيانات الدرس js/lesson-XX.js (LESSON.meta) عبر loader.js ?lesson=XX -->
   <meta name="description" id="doc-description" content="درس تفاعلي — نظام التدريس التفاعلي" />
   <title id="doc-title">المحاضرة التفاعلية</title>
@@ -114,6 +119,13 @@
           aria-label="استعادة الانتباه">
           ◎
         </button>
+
+        <!-- العودة إلى قائمة الدروس. رابط حقيقي لا زر: يعمل حتى لو تعطّل
+             JavaScript، ويبقى داخل حزمة الدرس فلا يكسر إطار المنصة. -->
+        <a class="hud-icon-btn" href="index.html" title="الدروس" aria-label="العودة إلى قائمة الدروس"
+          style="width:auto;padding:0 12px;text-decoration:none;display:inline-flex;align-items:center;font-size:13px;font-weight:600">
+          الدروس
+        </a>
       </div>
     </header>
 
@@ -219,6 +231,7 @@
   <!-- updateHint و updatePhaseBar مُعرَّفتان بشكل نهائي في app.js — لا override هنا -->
   <!-- تحميل الدرس: js/loader.js يقرأ ?lesson=XX ويحقن js/lesson-XX.js — لا يُنسخ القالب لأي درس -->
 
+  <script src="js/fusaha-identity.js"></script>
 </body>
 
 </html>
